@@ -1,6 +1,6 @@
 # AnnaSetu on AWS (SAM, ap-south-1)
 
-`template.yaml` defines everything in CLAUDE.md Section 15: HTTP API (10 rps, `x-api-key` checked by a Lambda
+`template.yaml` defines everything: HTTP API (10 rps, `x-api-key` checked by a Lambda
 authorizer), Lambdas `advisor`, `voice`, `ingest` (EventBridge Scheduler, 21:00 Asia/Kolkata) and `authorizer`,
 DynamoDB `MarketDay` / `MarketRisk` / `Outlets` / `Plans` (on-demand), private S3 data and audio buckets (audio
 deleted after 1 day), Amazon Location place index and route calculator, and a CloudWatch alarm on ingest errors.
@@ -17,12 +17,12 @@ writes your account's choices there.
 - AWS account, region `ap-south-1`, AWS CLI configured with the team's credentials.
 - AWS SAM CLI (open source; `pip install aws-sam-cli` or the installer) and `make`.
 
-## Deploy (CLAUDE.md Section 15.4)
+## Deploy
 
 1. **Budget alert first.** Billing console -> Budgets -> create a monthly cost budget (for example USD 10) with an
    email alert at 80% and 100%.
 2. **Bedrock model access (optional; without it the app uses templates and the rule parser).**
-   Bedrock console in ap-south-1 -> Model access -> enable Amazon Nova Lite (CLAUDE.md D23; any model that supports
+   Bedrock console in ap-south-1 -> Model access -> enable Amazon Nova Lite (D23; any model that supports
    the Converse API works, e.g. a Claude Haiku model if your account has Anthropic access). Check in the console that
    it is offered in ap-south-1 and whether it is invoked on demand or only through an APAC cross-region inference
    profile. Test one prompt in the playground. Note:
@@ -78,4 +78,4 @@ python -m pytest backend/tests -q     # stubbed AWS clients, no network
 - Transcribe batch jobs run in hi-IN, kn-IN and en-IN; `/voice/parse` waits up to 20 s for the job.
 - Ingest re-pulls the last 14 days from CEDA for markets in `config/markets.json` and computes MarketRisk from
   MarketDay history (seed it first, step 6). Any failed market makes the run raise, which trips the alarm.
-- The API key is a demo control, not user authentication (no user accounts, CLAUDE.md Section 21).
+- The API key is a demo control, not user authentication (no user accounts).

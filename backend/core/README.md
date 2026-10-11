@@ -1,6 +1,6 @@
 # backend/core
 
-Deterministic decision engine (CLAUDE.md Section 9). Python standard library only; plain dicts in, plain dicts out. No AWS, no network. Every parameter is read from `config/`.
+Deterministic decision engine. Python standard library only; plain dicts in, plain dicts out. No AWS, no network. Every parameter is read from `config/`.
 
 Floats in `recommend`, `plan` and `glut_radar` outputs are rounded to 4 decimals. `null` means "not yet estimated", never 0.
 
