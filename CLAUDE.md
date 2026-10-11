@@ -617,7 +617,7 @@ annasetu/
 ├── CLAUDE.md
 ├── README.md                 short visual pitch: problem, product, 2026 results, AWS, APK and video links
 ├── TECHNICAL.md              full reference: sources, assumptions, backtest, model, architecture, run, limits
-├── release/annasetu.apk      Android APK
+├── (Android APK and iOS simulator build: GitHub release v1.0, not in the repo)
 ├── infra/template.yaml       SAM: Lambdas, API, tables, buckets, schedule, IAM
 ├── backend/
 │   ├── core/                 pure Python, no AWS imports
