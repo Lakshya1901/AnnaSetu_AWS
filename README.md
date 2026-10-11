@@ -1,9 +1,9 @@
 <p align="center"><img src=".github/readme/hero.png" alt="AnnaSetu: stops the glut before the truck leaves, rescues what's left before it's dumped, and turns the rest into energy, not landfill"></p>
 
 <p align="center">
-<b><a href="https://github.com/Lakshya1901/AnnaSetu_AWS/raw/main/release/annasetu.apk">Download the Android APK</a></b> ·
+<b><a href="https://github.com/Lakshya1901/AnnaSetu_AWS/releases/download/v1.0/annasetu.apk">Download the Android APK</a></b> ·
 <b>Demo video: TBD</b> ·
-<b><a href="https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT">2026 stat report and case study</a></b> ·
+<b><a href="docs/AnnaSetu_2026_Replay.pdf">2026 stat report and case study</a></b> ·
 <b><a href="TECHNICAL.md">Technical details</a></b>
 </p>
 
@@ -60,7 +60,7 @@ We ran the advisor's own `/plan` and `/recommend` code on **every day from 1 Mar
 - **Weak spot: cauliflower.** The advice held on 14 of 35 Delhi loads and 4 of 10 farm loads.
 - **1,562 requests across both runs, 0 errors, deterministic**, and 120 backend tests pass.
 
-All loads and the farm are simulated; prices, arrivals, weather and routes are real; money and waste are model estimates. Full charts in the [2026 report](https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT).
+All loads and the farm are simulated; prices, arrivals, weather and routes are real; money and waste are model estimates. Full charts in the [2026 report](docs/AnnaSetu_2026_Replay.pdf).
 
 ## How it decides
 
@@ -126,26 +126,42 @@ The app says it on screen: "Replaying \<date\> data", "Demo loads" and "All numb
 
 ## Try it
 
-- **Android:** install [`release/annasetu.apk`](https://github.com/Lakshya1901/AnnaSetu_AWS/raw/main/release/annasetu.apk) (direct download). Settings has **Live** (today's mandi prices) and **Demo** (fills itself with a full day at Azadpur on the replayed glut day).
+- **Android:** install [`annasetu.apk`](https://github.com/Lakshya1901/AnnaSetu_AWS/releases/download/v1.0/annasetu.apk) from the [v1.0 release](https://github.com/Lakshya1901/AnnaSetu_AWS/releases/tag/v1.0) (allow installs from unknown sources). Settings has **Live** (today's mandi prices) and **Demo** (fills itself with a full day at Azadpur on the replayed glut day).
+- **iOS:** [Simulator build](https://github.com/Lakshya1901/AnnaSetu_AWS/releases/download/v1.0/AnnaSetu.iOS.tar.gz) for a Mac with Xcode (unzip, drag `AnnaSetu.app` onto a running Simulator), or open the project in Expo Go on an iPhone. Real-device builds need a paid Apple Developer account.
 - **Backend:** `python -m pytest backend/tests -q`, or run the advisor locally on the snapshot with `python -m backend.handlers.local_server --port 8787`.
 - **Deploy:** `cd infra && sam build && sam deploy --guided` ([infra/README.md](infra/README.md)).
 
 ## Repository layout
 
 ```
-backend/core/       decision engine: risk, pricing, spoilage, net value, allocation, impact (pure Python, no AWS)
-backend/adapters/   every external call: Agmarknet, weather, Amazon Location, Bedrock, Transcribe, Polly, DynamoDB
-backend/handlers/   thin Lambda handlers: advisor, voice, ingest, authorizer; local server
-backend/tests/      120 pytest tests, stubbed AWS clients
-app/                Expo app: screens, components, typed API client, 21 languages
-config/             model, assumptions (each with source and status), 50 crop profiles, markets, outlets, copy
-data/               snapshots (mandi data, weather), cached routes and places
-infra/              SAM template and deploy guide
-analysis/           backtest, 2026 replay and farm case study
-scripts/            data builders, geocoding, route caching, seeding
-release/            Android APK
-TECHNICAL.md        full reference: sources, assumptions, backtest, model, limits
-CLAUDE.md           specification and decision log (D1-D39)
+README.md                  this page
+TECHNICAL.md               full reference: sources, assumptions, backtest, model, architecture, limits
+CLAUDE.md                  full specification and decision log (D1-D39)
+PRODUCT.md                 users, tone and design principles for the app
+analysis/
+  backtest.py              deterministic backtest CLI -> results JSON + charts
+  second_replay.py         arrival-driven glut search (D14)
+  simulate_2026.py         2026 replay (D38); simulate_farm_2026.py: Narela farm; sim_summary.py: report figures
+  backtest.ipynb           viewer only
+  out/                     backtest charts (PNG); results JSON is git-ignored and kept in S3
+backend/
+  core/                    decision engine: risk, pricing, spoilage, netvalue, allocate, impact, recommend (no AWS)
+  adapters/                all external calls: agmarknet, ceda, weather, location, bedrock, speech, store
+  handlers/                thin Lambda wrappers: advisor, voice, ingest, authorizer, local_server
+  tests/                   120 pytest tests and API fixtures, stubbed AWS clients
+config/
+  model.json assumptions.json markets.json outlets.json commodities.json
+  crops/                   50 routable fruit and vegetable profiles (D33)
+  copy/                    English + 20 Indian languages (D27)
+data/
+  snapshot/                India Data Portal tomato and onion files + manifest, NASA POWER and NOAA GHCN weather
+  routes_cache.json        Amazon Location routes (filled by scripts/cache_routes.py)
+  places_cache.json        Amazon Location place lookups for offline runs (D31)
+infra/                     SAM template, Makefile, deploy guide
+scripts/                   build_idp.py build_idp_config.py build_agmarknet_ids.py build_osm_outlets.py build_snapshot.py geocode_markets.py cache_routes.py seed.py
+app/                       Expo app: screens, components, typed API client, i18n
+docs/                      2026 stat report and case study (PDF)
+release/                   Android APK
 ```
 
 ## Limits

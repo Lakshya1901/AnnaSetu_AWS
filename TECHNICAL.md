@@ -16,8 +16,8 @@ The core question it answers: **"Where should this load go today, and what will 
 - Platform: Android/iOS app (Expo), serverless backend on AWS in ap-south-1, built and deployed with the AWS SAM CLI
 - AWS stack: AWS SAM CLI, AWS CloudFormation, Amazon API Gateway (HTTP API, Lambda authorizer), AWS Lambda (advisor, voice, ingest, authorizer), Amazon DynamoDB, Amazon S3, Amazon EventBridge Scheduler, Amazon SQS (with dead-letter queue), Amazon Transcribe, Amazon Polly, Amazon Location Service, Amazon Bedrock (Converse API; wired, not enabled in our account, D23), AWS Systems Manager Parameter Store, Amazon CloudWatch, Amazon SNS (alarm email, when an address is set at deploy), AWS IAM, AWS Registry of Open Data (NOAA GHCN-Daily). Details in Section 8
 - Demo video: TBD
-- Android APK: [`release/annasetu.apk`](release/annasetu.apk) in this repo, also on [Expo](https://expo.dev/artifacts/eas/zimvjrUv9exYufPVm1UZrpx6QHH-wNO9-IqEBOfqDn8.apk) (EAS preview build, October 11; talks to the live API; sha256 `91bd7e88...93d1a0`)
-- Stat report and case study: [2026 report](https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT): the deployed engine replayed on March-May 2026 mandi data (Kolar and Delhi): money saved Rs 2.20 crore (1.73-2.96, estimate), 169 t of 184 t unsold stock rescued, advice held out of sample on 1,248 of 1,279 diverted loads (Section 4)
+- Android APK: [`annasetu.apk`](https://github.com/Lakshya1901/AnnaSetu_AWS/releases/download/v1.0/annasetu.apk) in the [v1.0 release](https://github.com/Lakshya1901/AnnaSetu_AWS/releases/tag/v1.0) (also `release/annasetu.apk` in this repo), and on [Expo](https://expo.dev/artifacts/eas/zimvjrUv9exYufPVm1UZrpx6QHH-wNO9-IqEBOfqDn8.apk) (EAS preview build, October 11; talks to the live API; sha256 `91bd7e88...93d1a0`)
+- Stat report and case study: [2026 report](docs/AnnaSetu_2026_Replay.pdf): the deployed engine replayed on March-May 2026 mandi data (Kolar and Delhi): money saved Rs 2.20 crore (1.73-2.96, estimate), 169 t of 184 t unsold stock rescued, advice held out of sample on 1,248 of 1,279 diverted loads (Section 4)
 - Case study (same report): one simulated 8-acre vegetable farm near Narela, Delhi (tomato, bottle gourd, okra, cauliflower) on the same 2026 data: money saved Rs 5.2 lakh (3.7-7.7, estimate), 3,576 kg of 3,900 kg unsold stock rescued, advice held on 79 of 92 diverted loads (Section 4)
 - Built with [Claude Code](https://claude.com/claude-code) (Anthropic's AI coding tool), disclosed as the event rules require
 
@@ -92,8 +92,8 @@ On 2023-09-29 the demo compares the nearest-mandi default with AnnaSetu's alloca
 
 The deployed advisor's own `/plan` and `/recommend` code, run on every day of 1 March - 31 May 2026 (the last day in the India Data Portal files) on real prices, arrivals, NASA POWER temperature and cached Amazon Location routes. The loads are simulated; every money and waste figure is a model estimate.
 
-- **Kolar and Delhi ([stat report](https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT)).** Each day: ten Kolar tomato loads, five 5 t loads from Azadpur (tomato, onion, banana, cabbage, cauliflower) and one 2 t unsold tomato lot at Azadpur. 1,380 loads, 0 errors, deterministic; 94.6% sent away from the nearest mandi; money saved Rs 2.20 crore (1.73-2.96, estimate); waste avoided net +11 t (range -65 to +238 t): Delhi +18 t, mostly banana on 39 Azadpur arrival-glut days, Kolar -6 t (longer trips with no glut this spring); 169 t of 184 t unsold stock rescued to mandis within 100 km.
-- **One farm near Narela, Delhi (case study, [same report](https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT)).** A simulated 8-acre farm (tomato 3 acres, bottle gourd 2, okra 2 from 15 April, cauliflower 1 in March; quantities from typical yields). Narela mandi does not report these crops, so the nearest reporting mandi is Azadpur. 112 loads (127 t), 0 errors, 85.7% sent elsewhere, money saved Rs 5.2 lakh (3.7-7.7, estimate), waste avoided +844 kg net, 3,576 kg of 3,900 kg unsold stock rescued.
+- **Kolar and Delhi ([stat report](docs/AnnaSetu_2026_Replay.pdf)).** Each day: ten Kolar tomato loads, five 5 t loads from Azadpur (tomato, onion, banana, cabbage, cauliflower) and one 2 t unsold tomato lot at Azadpur. 1,380 loads, 0 errors, deterministic; 94.6% sent away from the nearest mandi; money saved Rs 2.20 crore (1.73-2.96, estimate); waste avoided net +11 t (range -65 to +238 t): Delhi +18 t, mostly banana on 39 Azadpur arrival-glut days, Kolar -6 t (longer trips with no glut this spring); 169 t of 184 t unsold stock rescued to mandis within 100 km.
+- **One farm near Narela, Delhi (case study, [same report](docs/AnnaSetu_2026_Replay.pdf)).** A simulated 8-acre farm (tomato 3 acres, bottle gourd 2, okra 2 from 15 April, cauliflower 1 in March; quantities from typical yields). Narela mandi does not report these crops, so the nearest reporting mandi is Azadpur. 112 loads (127 t), 0 errors, 85.7% sent elsewhere, money saved Rs 5.2 lakh (3.7-7.7, estimate), waste avoided +844 kg net, 3,576 kg of 3,900 kg unsold stock rescued.
 - **Out-of-sample check.** For every diverted load, the next real price at both the advised and the nearest market within 7 days, freight-adjusted: the advice held on 1,248 of 1,279 diverted loads (2026 replay) and 79 of 92 (Narela farm).
 - **Weak spots.** Cauliflower: Delhi cauliflower held on 14 of 35 loads, Narela cauliflower 4 of 10. Kolar's waste avoided is negative this spring: with no glut, a longer trip only adds spoilage. Kolar sent every load away because Bengaluru paid more after freight all spring; more trucks to one city would test the anti-herding cap, which Live mode cannot check without arrivals (D34).
 
@@ -343,21 +343,23 @@ Deploy (full steps in [infra/README.md](infra/README.md)):
 ## 11. Repository layout
 
 ```
+README.md                  short visual pitch: problem, product, results, AWS, links
+TECHNICAL.md               this page
 CLAUDE.md                  full specification and decision log (D1-D39)
-README.md
+PRODUCT.md                 users, tone and design principles for the app
 analysis/
-  backtest.py              deterministic backtest CLI -> analysis/out/results_<run_id>.json + charts
-  second_replay.py         arrival-driven glut search -> analysis/out/second_replay.json
+  backtest.py              deterministic backtest CLI -> results JSON + charts
+  second_replay.py         arrival-driven glut search (D14)
   simulate_2026.py         2026 replay (D38); simulate_farm_2026.py: Narela farm; sim_summary.py: report figures
   backtest.ipynb           viewer only
-  out/                     results JSON and PNG charts (git-ignored)
+  out/                     backtest charts (PNG); results JSON is git-ignored and kept in S3
 backend/
   core/                    decision engine: risk, pricing, spoilage, netvalue, allocate, impact, recommend (no AWS)
   adapters/                all external calls: agmarknet, ceda, weather, location, bedrock, speech, store
   handlers/                thin Lambda wrappers: advisor, voice, ingest, authorizer, local_server
-  tests/                   pytest suite and API fixtures
+  tests/                   120 pytest tests and API fixtures, stubbed AWS clients
 config/
-  model.json assumptions.json markets.json outlets.json
+  model.json assumptions.json markets.json outlets.json commodities.json
   crops/                   50 routable fruit and vegetable profiles (D33)
   copy/                    English + 20 Indian languages (D27)
 data/
@@ -367,4 +369,6 @@ data/
 infra/                     SAM template, Makefile, deploy guide
 scripts/                   build_idp.py build_idp_config.py build_agmarknet_ids.py build_osm_outlets.py build_snapshot.py geocode_markets.py cache_routes.py seed.py
 app/                       Expo app: screens, components, typed API client, i18n
+docs/                      2026 stat report and case study (PDF)
+release/                   Android APK
 ```
