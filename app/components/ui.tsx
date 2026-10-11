@@ -168,9 +168,11 @@ export function DataBanners({
   stale,
   demoLoads,
   demoLabel,
+  pricesDate,
 }: {
   fixture?: boolean;
   replayDate?: string | null;
+  pricesDate?: string | null; // live data: the date the shown prices are from
   stale?: boolean;
   demoLoads?: boolean;
   demoLabel?: string;
@@ -191,6 +193,10 @@ export function DataBanners({
           ) : null}
           {demoLoads ? <Tag text={demoLabel ?? t('demo_loads')} /> : null}
         </View>
+      ) : pricesDate ? (
+        <T size={SIZE.label} color={C.muted}>
+          {t('prices_from', { date: fmtDate(pricesDate) })}
+        </T>
       ) : null}
       {stale ? <Banner kind="warn" text={t('stale')} /> : null}
     </>
@@ -313,7 +319,7 @@ export function useErrorText() {
     if (e instanceof ApiError) {
       if (e.code === 'no_markets_in_radius') return t('err_no_markets');
       if (e.code === 'crop_not_configured') return t('err_crop_not_setup');
-      if (e.code === 'origin_unknown') return t('err_origin_unknown');
+      if (e.code === 'origin_unknown' || e.code === 'origin_required') return t('err_origin_unknown');
       if (e.code === 'drive_time_unavailable') return t('err_drive_time');
       if (e.code === 'temperature_unavailable') return t('err_temperature');
       if (e.code === 'split_required') return t('err_split_required');

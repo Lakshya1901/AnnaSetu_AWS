@@ -13,10 +13,11 @@ def dump_share_band(ratio, table):
     return len(table) - 1
 
 
-def _loss_parts(option, table):
+def _loss_parts(option, table, price_only_ratio=None):
     """(spoilage range, u low/mid/high) for an outlet, or None when it can't be estimated.
 
-    Mandi: u from the u(R) band of its projected ratio (low/high = band below/above).
+    Mandi: u from the u(R) band of its projected ratio (low/high = band below/above); with live prices only
+    (D34), the band of price_only_ratio for its price-only risk level.
     Processor and food bank: u = 0 (food still eaten). Feed, biogas, compost: loss 1 (no food recovered for people).
     """
     t = option["type"]
@@ -24,9 +25,12 @@ def _loss_parts(option, table):
         return {"low": 1.0, "mid": 1.0, "high": 1.0}, {"low": 0.0, "mid": 0.0, "high": 0.0}
     if t in EDIBLE_TYPES:
         return option["spoilage_range"], {"low": 0.0, "mid": 0.0, "high": 0.0}
-    if t != "mandi" or option.get("projected_arrival_ratio") is None:
+    ratio = option.get("projected_arrival_ratio")
+    if t == "mandi" and option.get("price_only"):  # D34: no arrivals; the R band its price-only level stands for
+        ratio = (price_only_ratio or {}).get(option.get("projected_risk_level"))
+    if t != "mandi" or ratio is None:
         return None
-    i = dump_share_band(option["projected_arrival_ratio"], table)
+    i = dump_share_band(ratio, table)
     u = {"low": table[max(i - 1, 0)]["u"], "mid": table[i]["u"], "high": table[min(i + 1, len(table) - 1)]["u"]}
     return option["spoilage_range"], u
 
@@ -49,7 +53,8 @@ def waste_avoided(quantity_kg, default, advised, assumptions, harvest_cost_rs_pe
     if advised["outlet_id"] == default["outlet_id"] and advised["type"] == default["type"]:
         return {"low": 0.0, "mid": 0.0, "high": 0.0}
     table = assumption(assumptions, "dump_share_table")
-    d, a = _loss_parts(default, table), _loss_parts(advised, table)
+    por = assumption(assumptions, "price_only_ratio")
+    d, a = _loss_parts(default, table, por), _loss_parts(advised, table, por)
     if d is None or a is None:
         return None
     (sd, ud), (sa, ua) = d, a
@@ -64,6 +69,27 @@ def waste_avoided(quantity_kg, default, advised, assumptions, harvest_cost_rs_pe
         "mid": quantity_kg * (loss(sd["mid"], ud["mid"]) - loss(sa["mid"], ua["mid"])),
         "high": quantity_kg * (loss(sd["high"], ud["high"]) - loss(sa["low"], ua["mid"])),
     }
+
+
+def money_saved(quantity_kg, default, advised, assumptions, harvest_cost_rs_per_kg=None):
+    """Rs AnnaSetu adds on one load: expected earnings at the advised outlet minus at the nearest mandi. Expected
+    earnings = net per kg (Step 4: after freight, fees, spoilage) x the share that sells (1 - u, the Step 6 dump
+    share, with the D12 below-cost floor at the default), x quantity. So it counts both the better price and the
+    produce a glutted mandi would leave unsold, without counting spoilage twice. Second Life and Recover outlets
+    pay their offer or 0, so a food bank or biogas trip shows its freight as a cost. {low, mid, high} or None."""
+    if advised["outlet_id"] == default["outlet_id"] and advised["type"] == default["type"]:
+        return {"low": 0.0, "mid": 0.0, "high": 0.0}
+    nd, na = default.get("net_rs_per_kg"), advised.get("net_rs_per_kg")
+    table, por = assumption(assumptions, "dump_share_table"), assumption(assumptions, "price_only_ratio")
+    d, a = _loss_parts(default, table, por), _loss_parts(advised, table, por)
+    if nd is None or na is None or d is None or a is None:
+        return None
+    ud, ua = d[1], a[1]
+    if below_cost(default, harvest_cost_rs_per_kg):
+        floor = assumption(assumptions, "below_cost_dump_share")
+        ud = {k: max(ud[k], floor[k]) for k in ud}
+    v = [quantity_kg * (na[k] * (1 - ua["mid"]) - nd[k] * (1 - ud[k])) for k in ("low", "mid", "high")]
+    return {"low": min(v), "mid": v[1], "high": max(v)}
 
 
 def _ledger(prevented, rescued_kg, recovered_kg, biogas_kg, assumptions):
@@ -99,6 +125,7 @@ def impact(quantity_kg, default, advised, crop, assumptions):
         **_ledger(w, 0, recovered, recovered if advised["type"] == "biogas" else 0, assumptions),
         "redirected_kg": quantity_kg if moved else 0,
         "waste_avoided_kg": w,
+        "money_saved_rs": money_saved(quantity_kg, default, advised, assumptions, crop.get("harvest_cost_rs_per_kg")),
         "extra_km": extra_km,
         "diesel_l": diesel,
         "co2_kg": co2,

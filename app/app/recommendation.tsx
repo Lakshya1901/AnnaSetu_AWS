@@ -10,7 +10,7 @@ import { RecommendationCard, useOutletLabels } from '../components/Recommendatio
 import { Banner, Btn, DataBanners, ListRow, Screen, SectionTitle, Surface, Tag, T } from '../components/ui';
 import { fmtNum, fmtRs, translate } from '../i18n';
 import { ratioDriven } from '../lib/recommend';
-import { earnFor, fromImpact, recordLedger } from '../lib/ledger';
+import { extraOver, fromImpact, recordLedger, stampFor } from '../lib/ledger';
 import { useSession } from '../lib/session';
 import { C, RISK, SIZE } from '../lib/theme';
 
@@ -100,6 +100,7 @@ export default function RecommendationScreen() {
       quantity_kg: req.quantity_kg,
       origin: req.origin,
       harvest: req.harvest,
+      ...(req.days_since_harvest !== undefined ? { days_since_harvest: req.days_since_harvest } : {}),
       chosen_outlet_id: outlet.outlet_id,
       override: L.key(outlet) !== L.key(res.top),
     });
@@ -107,12 +108,16 @@ export default function RecommendationScreen() {
     // Lifetime record on this phone; waste avoided is computed for the recommended outlet only.
     void recordLedger({
       key: `${res.plan_id}|${loadId}`,
-      at: new Date().toISOString(),
+      at: stampFor(res.replay_date),
       kind: 'farm',
+      crop: req.crop,
+      outlet: L.name(outlet),
       qty_kg: req.quantity_kg,
       ...fromImpact(res.impact, 'farm'),
       prevented_kg: isTop ? res.impact.waste_avoided_kg : null,
-      earn_rs: earnFor(outlet, req.quantity_kg),
+      // AnnaSetu's figure for the recommended outlet (better price + produce a glut would leave unsold);
+      // an override is compared on price alone.
+      extra_rs: isTop ? (res.impact.money_saved_rs ?? null) : extraOver(outlet, res.default, req.quantity_kg),
     });
     setUsed(L.key(outlet));
     router.push('/plan');
@@ -142,7 +147,7 @@ export default function RecommendationScreen() {
   return (
     <Screen>
       <Stack.Screen options={{ title: t('load_line', { qty: fmtNum(req.quantity_kg), crop: cropLabel(req.crop) }) }} />
-      <DataBanners fixture={res._fixture} replayDate={res.replay_date} stale={res.data.stale} demoLoads={res.demo_loads} />
+      <DataBanners fixture={res._fixture} replayDate={res.replay_date} stale={res.data.stale} demoLoads={res.demo_loads} pricesDate={res.data.prices_date} />
 
       {advice && bestFresh && (
         <Banner

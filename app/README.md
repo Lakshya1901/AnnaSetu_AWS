@@ -1,4 +1,4 @@
-<img src="../docs/brand/icon-256.png" width="72" alt="AnnaSetu icon">
+<img src="assets/brand/icon-256.png" width="72" alt="AnnaSetu icon">
 
 # AnnaSetu mobile app
 

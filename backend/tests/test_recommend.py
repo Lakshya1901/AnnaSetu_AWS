@@ -13,7 +13,7 @@ from backend.tests.fixtures import (AS_OF, MARKETS, OUTLETS, RECOVER_OUTLETS, gl
 def test_normal_week_one_load_goes_to_nearest_mandi(configs):
     r = recommend(load(), normal_week(), MARKETS, OUTLETS, configs, AS_OF)
     assert r["mode"] == "same_day"
-    assert r["data"] == {"as_of_date": AS_OF, "stale": False}
+    assert r["data"] == {"as_of_date": AS_OF, "stale": False, "prices_date": AS_OF}
     assert r["default"]["outlet_id"] == "kolar"
     assert r["top"]["outlet_id"] == "kolar"
     assert r["impact"]["redirected_kg"] == 0
@@ -350,3 +350,29 @@ def test_rescue_outside_demo_regions_uses_seeded_outlets(configs, lat, lon, reco
     # D31: seeded outlets in config/outlets.json reach cities beyond Kolar and Delhi.
     lot = unsold(split={"edible_kg": 700, "spoiled_kg": 300}, origin={"lat": lat, "lon": lon})
     assert rescue(lot, configs["outlets"], configs, AS_OF)["recover"]["outlet_id"] == recover_id
+
+
+def test_money_saved_counts_price_and_unsold_share(configs):
+    """Money saved = expected earnings at the advised outlet minus at the nearest mandi: net x (1 - dump share)."""
+    from backend.core.impact import money_saved
+    rng = lambda x: {"low": x, "mid": x, "high": x}
+    default = {"outlet_id": "kolar", "type": "mandi", "net_rs_per_kg": rng(5.0), "projected_arrival_ratio": 2.5,
+               "spoilage_range": rng(0.02)}
+    advised = {"outlet_id": "blr", "type": "mandi", "net_rs_per_kg": rng(9.0), "projected_arrival_ratio": 1.0,
+               "spoilage_range": rng(0.03)}
+    m = money_saved(1000, default, advised, configs["assumptions"])
+    assert m["mid"] == 1000 * (9.0 * (1 - 0.0) - 5.0 * (1 - 0.20))  # R 2.5 at Kolar: 20% unsold (u table)
+    assert money_saved(1000, default, default, configs["assumptions"]) == rng(0.0)
+    assert money_saved(1000, default, dict(advised, net_rs_per_kg=None), configs["assumptions"]) is None
+
+
+def test_rescue_resells_at_another_mandi_not_its_own(configs):
+    """D36: edible unsold stock goes to another mandi within rescue_radius_km that still pays; the trader's own
+    mandi (within own_mandi_km) is skipped. Without a market context the old order applies (food bank first)."""
+    from backend.core.recommend import market_context
+    ctx = market_context("tomato", normal_week(), MARKETS, configs, AS_OF)
+    at_kolar = {"lat": 13.1367, "lon": 78.1337, "place": "Kolar"}
+    r = rescue(unsold(origin=at_kolar), OUTLETS, configs, AS_OF, ctx)
+    assert r["top"]["type"] == "mandi" and r["top"]["outlet_id"] != "kolar"
+    assert r["top"]["net_rs_per_kg"]["mid"] > 0 and r["impact"]["rescued_kg"] == r["split"]["edible_kg"]
+    assert rescue(unsold(origin=at_kolar), OUTLETS, configs, AS_OF)["top"]["type"] in ("processor", "food_bank")

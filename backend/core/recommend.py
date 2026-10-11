@@ -67,6 +67,8 @@ def _assumptions_used(results, crops, configs):
         i = r["impact"]
         if i["waste_avoided_kg"] is not None and i["redirected_kg"]:
             keys.add("dump_share_table")
+            if any(o.get("price_only") for o in (r["top"], r["default"])):
+                keys.add("price_only_ratio")
             if below_cost(r["default"], crops[r["crop"]].get("harvest_cost_rs_per_kg")):
                 keys.add("below_cost_dump_share")
         if i["diesel_l"] is not None:
@@ -78,7 +80,15 @@ def _assumptions_used(results, crops, configs):
 
 
 def _stale(result):
-    return any(o.get("stale") for o in [result["top"], result["default"]] + result["alternatives"])
+    """Prices out of date at the recommended or the nearest market (the two the card compares); alternatives
+    further down carry their own stale flag."""
+    return any(o.get("stale") for o in (result["top"], result["default"]))
+
+
+def _prices_date(results):
+    """Oldest latest-report date among the recommended and nearest mandis, or None (shown as "Prices from")."""
+    dates = [o["latest_date"] for r in results for o in (r["top"], r["default"]) if o.get("latest_date")]
+    return min(dates) if dates else None
 
 
 def plan(loads, market_days, markets, outlets, configs, as_of_date, ctx=None):
@@ -93,7 +103,8 @@ def plan(loads, market_days, markets, outlets, configs, as_of_date, ctx=None):
     results, added = allocate(loads, crops, ctx, outlets, configs)
     return _round({
         "mode": {c: crop_mode(configs["model"], c) for c in crop_ids},
-        "data": {"as_of_date": to_date(as_of_date).isoformat(), "stale": any(_stale(r) for r in results)},
+        "data": {"as_of_date": to_date(as_of_date).isoformat(), "stale": any(_stale(r) for r in results),
+                 "prices_date": _prices_date(results)},
         "allocations": results,
         "dA_kg": added,
         "impact": total_impact([r["impact"] for r in results]),
@@ -110,10 +121,11 @@ def recommend(load, market_days, markets, outlets, configs, as_of_date, ctx=None
             "impact": r["impact"], "advice": r["advice"], "assumptions_used": p["assumptions_used"]}
 
 
-def rescue(load, outlets, configs, as_of_date):
-    """/recommend with source mandi_unsold (Step 5b), without plan_id and explanation."""
+def rescue(load, outlets, configs, as_of_date, ctx=None):
+    """/recommend with source mandi_unsold (Step 5b), without plan_id and explanation. ctx: the crop's
+    market_context (mandis where the edible part could still sell, D36)."""
     crop = get_crop(configs, load["crop"])
-    r = rescue_load(load, crop, outlets, configs)
+    r = rescue_load(dict(load, as_of_date=to_date(as_of_date).isoformat()), crop, outlets, configs, ctx)
     a = configs["assumptions"]
     keys = {"rescue_radius_km"}
     for o in (r["top"], r["recover"]):

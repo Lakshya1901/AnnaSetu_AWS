@@ -54,8 +54,13 @@ in TODO.md as they are done and commit TODO.md with the work.
 - [x] C9 Icon (bridge + sprout) in app, README, PRODUCT.md; APK limited to arm64-v8a and armeabi-v7a (next build); merge conflict with main resolved (main was a squash of 57ac772).
 - [x] C10 Backtest result JSON moved to S3 backtest/ (52k lines out of git); README tech stack table with AWS per layer; one "All numbers are estimates" line per screen (D32); Mumbai weather (8 nearest NOAA stations).
 - [x] C11 Advice for all 50 preloaded crops (D33); harvest cost optional; Settings screen with My crops; crop chips from the API; typed place clears stale coordinates. 115 tests, tsc and Android export pass; not yet checked on a simulator or phone.
-- [ ] C12 Settings: Live / Demo data switch (needs MarketRisk rows for the replay day and the latest day side by side).
-- [ ] C13 Redeploy (confirm first): weather fix, 48 crop profiles, /crops names. Then the iOS simulator pass on the Mac, then the APK build.
+- [x] C12 Settings: Live / Demo data switch (D34). Deployed and checked October 10: live Agmarknet prices dated 8 Oct for tomato (Kolar), onion (Pune), potato (Agra); demo still replays 29 Sep 2023; Expo Go update published.
+- [x] C13 Redeploy: weather fix, 48 crop profiles, /crops names (done October 10; live /crops lists 50 routable crops). Next: simulator pass on the Mac, then the APK build.
+- [ ] C14 iOS simulator pass on the Mac (Expo SDK 57). Oct 10: branch checked out, `npm install` done. Blocked:
+  - `app/.env` not written: no AWS CLI or credentials on this Mac, so the key in SSM `/annasetu/app_api_key` can't be read here; the user supplies it.
+  - Xcode 27.0 first-launch components missing (CoreSimulator absent, `simctl` fails, `xcodebuild -checkFirstLaunchStatus` exits 69) and no iOS simulator runtime. User runs `sudo xcodebuild -runFirstLaunch`, then `xcodebuild -downloadPlatform iOS`.
+  - Then: `npx expo start --ios`, screenshot Language, Today, New load, Unsold stock, Recommendation, Today's plan, Impact, Settings; check first: New load "Crop" label clipped under the header (seen on Android), doubled chip / segmented-button borders (Android; check iOS), long Hindi/Kannada strings, overall polish.
+- [x] C15 Phone-test batch 2 (D36, Oct 10): unsold stock resells at nearby mandis, harvest age in days, no coordinates field, voice upload fix + recording animation, one Impact page, settings on every screen, language-change remount, 14 OSM outlets. Deployed and seeded; APK 68f84a33. Waiting on the user's phone test (language crash fix unverified).
 - [ ] C7 Voice parse in languages other than en/hi/kn needs Bedrock (D23, still blocked); until then those transcripts land on Confirm with fields highlighted.
 - [ ] C8 Video beat 1 (D22): no recent Delhi dumping report found; best fetched: INPECS 2012 (Azadpur "approximately 2 000 tons of waste ... daily"), Tribune 2025-05-17 (CM: "garbage dump"). Team to choose.
 
@@ -95,10 +100,10 @@ in TODO.md as they are done and commit TODO.md with the work.
 - [x] Headline replay day (D18), chosen Oct 10: 2023-09-29 (see A1). On market-level data 2023-09-06 gives waste avoided about -8 kg and no load split; 2023-09-15 and 2023-09-29 split the ten loads with positive waste avoided. Team to choose; then set `replay_date` and re-run ingest.
 
 ### 3. iPhone and Android test
-- [ ] 3.1 Put the API URL and key in `app/.env` (from `app/.env.example`); never commit it.
-- [ ] 3.2 Android: `app/eas.json` has a `preview` profile that builds an APK (EAS environment `preview`). Needs an Expo account (`eas login`). EAS does not upload the git-ignored `app/.env`, so set `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_API_KEY` with `eas env:create --environment preview` (key as a secret). Then `eas build -p android --profile preview`; install the APK; one typed and one voice recommendation end to end (target under 15 s from release to card).
+- [x] 3.1 (Oct 10, B3) Put the API URL and key in `app/.env` (from `app/.env.example`); never commit it.
+- [ ] 3.2 (Oct 11: APK built and installed; typed flow works on a phone; voice and batch-2 fixes await the user's retest) Android: `app/eas.json` has a `preview` profile that builds an APK (EAS environment `preview`). Needs an Expo account (`eas login`). EAS does not upload the git-ignored `app/.env`, so set `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_API_KEY` with `eas env:create --environment preview` (key as a secret). Then `eas build -p android --profile preview`; install the APK; one typed and one voice recommendation end to end (target under 15 s from release to card).
 - [ ] 3.3 iPhone: run through Expo Go (no App Store / TestFlight). Same two flows.
-- [ ] 3.5 Build the APK file (steps in `app/README.md`, Build): `eas build -p android --profile preview`, download the `.apk`, attach it to a GitHub Release (not committed; large binary) and use that link for README "Android APK".
+- [x] 3.5 (Oct 10: APK linked from expo.dev in README instead of a GitHub Release) Build the APK file (steps in `app/README.md`, Build): `eas build -p android --profile preview`, download the `.apk`, attach it to a GitHub Release (not committed; large binary) and use that link for README "Android APK".
 - [ ] 3.6 iOS build (steps in `app/README.md`, Build): Expo Go on a real iPhone; optional simulator build `eas build -p ios --profile preview` on a Mac. No `.ipa` for real devices without a paid Apple Developer account.
 - [ ] 3.4 Check Listen (Hindi and English only; Kannada shows the note), Second Life screen, stale banner, 422 messages.
 
@@ -111,26 +116,26 @@ in TODO.md as they are done and commit TODO.md with the work.
 - [ ] 4.5 Fill open decisions D20 (real outlets per Rescue city: Bengaluru, Delhi, Mumbai), D21 (biogas yield source), D22 (video beat 1 source of dumping at a city mandi).
 
 ### 5. Verification
-- [x] 5.1 Full checks (Oct 10: 105 passed, tsc clean, template valid): `python -m pytest backend/tests -q`, `cd app && npx tsc --noEmit`, `cd infra && sam validate --lint`. Oct 9: 85 passed, tsc clean, template valid. Re-run after any later change.
+- [x] 5.1 Full checks (Oct 11: 120 passed, tsc clean. Oct 10: 105 passed, tsc clean, template valid): `python -m pytest backend/tests -q`, `cd app && npx tsc --noEmit`, `cd infra && sam validate --lint`. Oct 9: 85 passed, tsc clean, template valid. Re-run after any later change.
 - [x] 5.2 Reproducibility (Oct 10: backtest 937fb04f9baf JSON and both PNGs byte-identical on re-run): re-run `python analysis/backtest.py --crop tomato` and `python analysis/second_replay.py`; outputs must be byte-identical to the committed files. Oct 9: JSON and both PNGs byte-identical (charts need matplotlib).
-- [ ] 5.3 Every number on screen traces to `config/` or computed data with its status (CLAUDE.md Section 20). No Section 3.3 claims anywhere. No "days early" wording (mode is `same_day`).
+- [x] 5.3 (Oct 11: audit, 4 of 6 checks passed first time; fixed: Impact shows the Demo loads tag in demo mode, estimates line under previous loads, README D32 wording, kept-out-of-landfill ranges and the case study's simulated label) Every number on screen traces to `config/` or computed data with its status (CLAUDE.md Section 20). No Section 3.3 claims anywhere. No "days early" wording (mode is `same_day`).
   - Oct 9: no Section 3.3 claims in app, config, backend or README; `glut_in_days` renders only in `predictive` mode. Number tracing waits on 2.2 figures and phone screens.
 
 ### 6. Stat report generation
-- [ ] 6.1 One report of the final numbers for both replay days from the live or local API: per load and 10-load plan, waste avoided (range), redirected, extra km, diesel, CO2, net value default vs advised. Save as `analysis/out/demo_report.json` (+ a readable `.md`).
+- [x] 6.1 (Oct 11: replaced by a 92-day replay of March-May 2026, Kolar and Delhi, the stat report artifact; replay-day figures stay in CLAUDE.md D18 and D37) One report of the final numbers for both replay days from the live or local API: per load and 10-load plan, waste avoided (range), redirected, extra km, diesel, CO2, net value default vs advised. Save as `analysis/out/demo_report.json` (+ a readable `.md`).
 
 ### 7. Result verification and classification
-- [ ] 7.1 Label every figure in the report as observed (CEDA prices and arrivals, NASA POWER weather, Amazon Location routes), model output (R, net value, spoilage, waste avoided) or assumption (Section 10 placeholders).
+- [x] 7.1 (Oct 11: classification table in the stat report) Label every figure in the report as observed (CEDA prices and arrivals, NASA POWER weather, Amazon Location routes), model output (R, net value, spoilage, waste avoided) or assumption (Section 10 placeholders).
 - [ ] 7.2 Two numbers judges may question; keep them labelled:
   - Waste avoided on 2025-03-19 is driven mostly by the placeholder 40% dump share (D12). Always "(estimate)".
   - Price sensitivity: every market uses the spec's fallback b = -0.5 because price barely tracks arrivals in this data (D15). Stated in the README.
 
 ### 8. Branding and repo rename
-- [ ] 8.1 App name, icon and splash in `app/app.json` / `app/assets/`.
+- [x] 8.1 (Oct 10: name AnnaSetu, bridge + sprout icon, C9; no custom splash) App name, icon and splash in `app/app.json` / `app/assets/`.
 - [ ] 8.2 Rename the GitHub repo (e.g. `annasetu`) in GitHub settings; then `git remote set-url origin https://github.com/Lakshya1901/<new-name>` and update any URLs in README.md.
 
 ### 9. README, final push, public repo
-- [ ] 9.1 Update README.md with the stat report figures, screenshots in `docs/`, and the APK link (replace "TBD").
+- [ ] 9.1 (Oct 11: results, AWS usage and disclosure done by the README pass; screenshots and video link still open) Update README.md with the stat report figures, screenshots in `docs/`, and the APK link (replace "TBD").
 - [ ] 9.2 Merge the working branch into `main` (via a PR; confirm first). `edit/festive-darwin-bd1y1i` already merged on October 9.
 - [ ] 9.3 Make the repo public. Check nothing secret is committed (no keys, `samconfig.toml`, `.env`).
 
@@ -138,10 +143,10 @@ in TODO.md as they are done and commit TODO.md with the work.
 
 - [x] 10. Commit history check: clear messages, no secrets, no model identifiers, no `node_modules` or build output. Oct 9: no keys, `.env`, `samconfig.toml`, `node_modules`, build output or model IDs in any commit. Early messages (`v1`, `merge (#1)`) are terse; left as is (rewriting `main` is not worth it). Re-check before 9.3.
 - [ ] 11. Demo video, 3 minutes or less: the live app on a phone, the 2025 Kolar price crash (2025-03-19), and the second case study (2023-09-29, documented Sept 2023 arrival glut, ten loads split; D18). Show "Replaying <date> data", label counterfactuals as modelled, waste avoided separate from redirected. Then fill the video link in README.md (replace "TBD").
-- [ ] 12. Short writeup (submission form): problem, build, AWS usage (name the SAM CLI and every AWS service; CLAUDE.md Section 22.1).
+- [ ] 12. (Oct 11: draft in the submission pack artifact; paste into the form) Short writeup (submission form): problem, build, AWS usage (name the SAM CLI and every AWS service; CLAUDE.md Section 22.1).
   List the AI coding tools used (Claude Code), as the rules require: "You can use AI coding tools. List the ones you used in your writeup." (https://www.wemakedevs.org/aws/env/rules). Add the same line to README.md.
 
-- [ ] 12b. Blog post (public, e.g. AWS Builder Center or Hashnode): the Kolar and city-mandi story, Prevent / Rescue / Recover, architecture diagram, how SAM CLI and each AWS service are used, what is real vs simulated (CLAUDE.md Section 18), limits, and "Built with Claude Code". Link it from README.md and the submission.
+- [ ] 12b. (Oct 11: two drafts in the submission pack artifact; publish one and link) Blog post (public, e.g. AWS Builder Center or Hashnode): the Kolar and city-mandi story, Prevent / Rescue / Recover, architecture diagram, how SAM CLI and each AWS service are used, what is real vs simulated (CLAUDE.md Section 18), limits, and "Built with Claude Code". Link it from README.md and the submission.
 
 ## Sunday (October 11)
 

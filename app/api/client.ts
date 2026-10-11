@@ -1,4 +1,5 @@
 // Typed client for the AnnaSetu API (CLAUDE.md Section 13). The app never calls AWS directly.
+import * as FileSystem from 'expo-file-system/legacy';
 import { ApiError } from './errors';
 import type {
   ApiErrorBody,
@@ -29,6 +30,14 @@ const BASE_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/+$/, '');
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY ?? '';
 const TIMEOUT_MS = 20000;
 
+/** Today's live mandi prices, or the saved demo glut day (Settings, D34); sent with every request. */
+export type DataMode = 'live' | 'demo';
+let dataMode: DataMode = 'live';
+export const setDataMode = (m: DataMode) => {
+  dataMode = m;
+};
+export const getDataMode = () => dataMode;
+
 // Loaded only in mock mode so real mode never touches fixtures.
 const mock: typeof import('./mock').mock | null = MOCK ? require('./mock').mock : null;
 
@@ -42,6 +51,7 @@ async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown):
       method,
       headers: {
         'Content-Type': 'application/json',
+        'x-annasetu-data': dataMode,
         ...(API_KEY ? { 'x-api-key': API_KEY } : {}),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -93,17 +103,16 @@ export const api = {
     return request('POST', '/voice/upload', req);
   },
 
-  /** PUT the recorded file to the presigned S3 URL from voiceUpload. */
+  /** PUT the recorded file to the presigned S3 URL from voiceUpload. Native file upload: fetch(file://).blob() sent
+   * no audio on Android (October 10 phone test: uploads were requested, no transcription job ever started). */
   async putAudio(uploadUrl: string, fileUri: string, contentType: string): Promise<void> {
     if (mock) return;
-    const file = await fetch(fileUri);
-    const blob = await file.blob();
-    const res = await fetch(uploadUrl, {
-      method: 'PUT',
+    const res = await FileSystem.uploadAsync(uploadUrl, fileUri, {
+      httpMethod: 'PUT',
       headers: { 'Content-Type': contentType },
-      body: blob,
+      uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
     });
-    if (!res.ok) throw new ApiError(res.status, 'upload_failed');
+    if (res.status < 200 || res.status >= 300) throw new ApiError(res.status, 'upload_failed');
   },
 
   voiceParse(req: VoiceParseRequest): Promise<VoiceParseResponse> {

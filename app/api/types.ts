@@ -44,6 +44,7 @@ export interface Range {
 export interface Freshness {
   as_of_date: string;
   stale: boolean;
+  prices_date?: string | null; // oldest latest report of the recommended and nearest markets (D34)
 }
 
 /** Present on every fixture so fixture numbers can never pass as real data. */
@@ -139,6 +140,7 @@ export interface RecommendRequest {
   quantity_kg: number;
   origin: Origin;
   harvest: Harvest;
+  days_since_harvest?: number; // harvest "harvested": 0 = today (the API turns days into hours)
   language: Lang;
   plan_id?: string;
 }
@@ -187,6 +189,7 @@ export interface Impact {
   biogas_energy_unit: string | null;
   redirected_kg: number;
   waste_avoided_kg: Range | null;
+  money_saved_rs?: Range | null; // Prevent loads: expected earnings vs the nearest mandi (net x share that sells)
   extra_km: number | null;
   diesel_l: number | null;
   co2_kg: number | null;
@@ -225,7 +228,8 @@ export interface RescueRequest {
   source: 'mandi_unsold';
   crop: CropId;
   quantity_kg: number;
-  hours_since_harvest: number;
+  hours_since_harvest?: number; // one of hours or days (the API turns days into hours)
+  days_since_harvest?: number;
   edible_kg?: number;
   spoiled_kg?: number;
   origin: Origin;
@@ -264,6 +268,7 @@ export interface PlanLoad {
   quantity_kg: number;
   origin: Origin;
   harvest: Harvest;
+  days_since_harvest?: number;
   chosen_outlet_id?: string | null; // records "Use this" or an override
   override?: boolean; // true when chosen != recommended
 }

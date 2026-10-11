@@ -99,7 +99,7 @@ Resources:
     Properties:
       Handler: backend/handlers/advisor.handler
       MemorySize: 512
-      Timeout: 15
+      Timeout: 29   # under the HTTP API 30 s limit; cold live weather + routes for a new place took 13.8 s
       Policies:
         - Statement:
             - Effect: Allow
@@ -113,7 +113,7 @@ Resources:
               Action: [dynamodb:PutItem, dynamodb:UpdateItem]
               Resource: !GetAtt PlansTable.Arn
             - Effect: Allow
-              Action: dynamodb:PutItem   # the crop's "#status" row when a fetch is queued (D24)
+              Action: dynamodb:PutItem   # the crop's "#status" row when a fetch is queued (D24); "live#" price cache rows (D34)
               Resource: !GetAtt MarketRiskTable.Arn
             - Effect: Allow
               Action: sqs:SendMessage

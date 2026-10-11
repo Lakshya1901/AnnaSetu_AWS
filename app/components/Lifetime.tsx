@@ -24,7 +24,7 @@ function Bar({ parts }: { parts: { key: string; n: number; color: string }[] }) 
 
 export function Lifetime({ totals }: { totals: LedgerTotals }) {
   const { t } = useSession();
-  if (totals.count === 0) {
+  if (totals.count === 0 && totals.handled_kg === 0) {
     return (
       <View style={{ gap: 12 }}>
         <T size={SIZE.large}>{t('ledger_empty')}</T>
@@ -36,17 +36,14 @@ export function Lifetime({ totals }: { totals: LedgerTotals }) {
   const handled = totals.handled_kg;
   const pct = (v: number) => Math.round((v / handled) * 100);
   const share = handled > 0 ? Math.max(0, Math.min(100, pct(k.mid))) : 0;
-  const rangeKg =
-    k.low < 0
-      ? t('waste_range_loss', { loss: fmtNum(-k.low), high: fmtNum(k.high) })
-      : t('waste_range', { low: fmtNum(k.low), high: fmtNum(k.high) });
+  const rangeKg = t('waste_range', { low: fmtNum(Math.max(0, k.low)), high: fmtNum(Math.max(0, k.high)) });
   const parts = [
     { key: 'prevented', n: Math.max(0, totals.prevented_kg.mid), color: PART_COLORS.prevented },
     { key: 'rescued', n: totals.rescued_kg, color: PART_COLORS.rescued },
     { key: 'recovered', n: totals.recovered_kg, color: PART_COLORS.recovered },
   ];
   const partsTotal = parts.reduce((a, p) => a + p.n, 0);
-  const m = totals.earn_rs;
+  const m = totals.extra_rs;
 
   return (
     <View style={{ gap: 16 }}>
@@ -56,15 +53,40 @@ export function Lifetime({ totals }: { totals: LedgerTotals }) {
         </T>
       ) : null}
 
-      <View style={{ gap: 4 }}>
-        <T size={SIZE.small} color={C.muted}>
-          {t('kept_out_of_landfill')}
-        </T>
-        <T bold size={36} color={C.primary} style={{ lineHeight: 44 }}>
-          {t('waste_value', { mid: fmtNum(Math.max(0, k.mid)) })}
-        </T>
-        <T size={SIZE.small}>{rangeKg}</T>
+      {/* The two headline numbers side by side: food kept out of landfill, money AnnaSetu added. */}
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        <Surface style={{ flex: 1, padding: 16, gap: 4, backgroundColor: C.tonal }}>
+          <T size={SIZE.small} color={C.onTonal}>
+            {t('kept_out_of_landfill')}
+          </T>
+          <T bold size={SIZE.number} color={C.primary}>
+            {t('kg_value', { v: fmtNum(Math.max(0, Math.round(k.mid))) })}
+          </T>
+          {Math.round(k.low) !== Math.round(k.high) ? (
+            <T size={SIZE.label} color={C.onTonal}>
+              {rangeKg}
+            </T>
+          ) : null}
+        </Surface>
+        <Surface style={{ flex: 1, padding: 16, gap: 4, backgroundColor: C.tonal }}>
+          <T size={SIZE.small} color={C.onTonal}>
+            {t('total_money_saved')}
+          </T>
+          {m ? (
+            <>
+              <T bold size={SIZE.number} color={C.primary}>{`Rs ${fmtNum(Math.round(m.mid))}`}</T>
+              <T size={SIZE.label} color={C.onTonal}>
+                {t('money_range', { low: fmtNum(Math.round(m.low)), high: fmtNum(Math.round(m.high)) })}
+              </T>
+            </>
+          ) : (
+            <T color={C.muted}>{t('not_estimated')}</T>
+          )}
+        </Surface>
       </View>
+      <T size={SIZE.label} color={C.muted}>
+        {t('money_note')}
+      </T>
 
       <Surface style={{ padding: 16, gap: 10 }}>
         <T size={SIZE.small} color={C.muted}>
@@ -83,22 +105,6 @@ export function Lifetime({ totals }: { totals: LedgerTotals }) {
         </T>
       </Surface>
 
-      <Surface style={{ padding: 16, gap: 6 }}>
-        <T size={SIZE.small} color={C.muted}>
-          {t('total_money_saved')}
-        </T>
-        {m ? (
-          <>
-            <T bold size={SIZE.number}>{`Rs ${fmtNum(Math.round(m.mid))}`}</T>
-            <T size={SIZE.label}>{t('money_range', { low: fmtNum(Math.round(m.low)), high: fmtNum(Math.round(m.high)) })}</T>
-          </>
-        ) : (
-          <T color={C.muted}>{t('not_estimated')}</T>
-        )}
-        <T size={SIZE.label} color={C.muted}>
-          {t('money_note')}
-        </T>
-      </Surface>
 
       {partsTotal > 0 ? (
         <Surface style={{ padding: 16, gap: 12 }}>
