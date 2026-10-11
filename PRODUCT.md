@@ -6,11 +6,11 @@
 
 android
 
-React Native with Expo, one codebase. Android is the primary demo device; iOS runs the same screens through Expo Go (CLAUDE.md 14.1).
+React Native with Expo, one codebase. Android is the primary demo device; iOS runs the same screens through Expo Go.
 
 ## Users
 
-Primary: the FPO dispatch manager, who each morning decides who harvests, how much, and where each truck goes for a few hundred growers. Every word on screen is written at a farmer's reading level: users read short lines in their own language and know kg and Rs prices, but not technical terms. Rescue user: a city mandi trader with unsold stock at the end of the day. Secondary: individual farmers asking by voice; district horticulture officers watching the Glut Radar. (Confirmed October 10, 2026; CLAUDE.md Section 4.)
+Primary: the FPO dispatch manager, who each morning decides who harvests, how much, and where each truck goes for a few hundred growers. Every word on screen is written at a farmer's reading level: users read short lines in their own language and know kg and Rs prices, but not technical terms. Rescue user: a city mandi trader with unsold stock at the end of the day. Secondary: individual farmers asking by voice; district horticulture officers watching the Glut Radar. (Confirmed October 10, 2026.)
 
 ## Product Purpose
 
@@ -26,10 +26,10 @@ Used on low-to-mid Android phones, outdoors and in sunlight, on slow connections
 
 ## Capabilities and Constraints
 
-- Screens: Language, Today (Glut Radar), New load (voice or form), Confirm, Recommendation, Today's plan, Unsold stock, Impact (CLAUDE.md 14.2).
-- Risk words are Safe / Watch / Glut, always colour + word + icon (CLAUDE.md 14.5, 14.6).
-- Recommendation card order: earnings first, then waste avoided, redirected (never merged with waste avoided), extra distance; buttons Why not {market}?, Listen, Use this (CLAUDE.md 14.3).
-- Every figure carries a range or "(estimate)"; stale data is flagged; nothing is invented (CLAUDE.md 20).
+- Screens: Language, Today (Glut Radar), New load (voice or form), Confirm, Recommendation, Today's plan, Unsold stock, Impact.
+- Risk words are Safe / Watch / Glut, always colour + word + icon.
+- Recommendation card order: earnings first, then waste avoided, redirected (never merged with waste avoided), extra distance; buttons Why not {market}?, Listen, Use this.
+- Every figure carries a range or "(estimate)"; stale data is flagged; nothing is invented.
 - Mode is `same_day`: no "days early" wording anywhere.
 - A recommendation is advice, not a confirmed sale or a partnered receiver.
 

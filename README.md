@@ -136,7 +136,6 @@ The app says it on screen: "Replaying \<date\> data", "Demo loads" and "All numb
 ```
 README.md                  this page
 TECHNICAL.md               full reference: sources, assumptions, backtest, model, architecture, limits
-CLAUDE.md                  full specification and decision log (D1-D39)
 PRODUCT.md                 users, tone and design principles for the app
 analysis/
   backtest.py              deterministic backtest CLI -> results JSON + charts
@@ -170,7 +169,7 @@ docs/                      2026 stat report and case study (PDF)
 - Outlets are real but not yet partnered; Delhi has no biogas or compost unit with a source yet.
 - Indian-language text is machine-drafted and needs native review; Polly speaks only Hindi and English.
 
-The full list, every source and assumption, the backtest and the decision log: **[TECHNICAL.md](TECHNICAL.md)** and **[CLAUDE.md](CLAUDE.md)**.
+The full list, every source and assumption and the backtest: **[TECHNICAL.md](TECHNICAL.md)**.
 
 ---
 

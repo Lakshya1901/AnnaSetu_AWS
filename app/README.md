@@ -10,7 +10,7 @@ React Native + Expo (SDK 57) + TypeScript, expo-router. Android is the primary t
 app/
 ├── app/          screens (expo-router): language, today (Glut Radar), new-load, confirm, recommendation, plan, impact, rescue
 ├── components/   RecommendationCard, CompareSheet, RiskList, MicButton, LoadForm, ImpactRows, ui (primitives)
-├── api/          typed client for the API contract (CLAUDE.md Section 13), mock mode, fixtures/
+├── api/          typed client for the API contract (`api/types.ts`), mock mode, fixtures/
 ├── i18n/         reads ../config/copy/{en,hi,kn}.json (Metro watches that folder, see metro.config.js)
 └── lib/          session state, AsyncStorage cache, theme
 ```
@@ -132,4 +132,4 @@ Spoken replies (Listen) use Amazon Polly, which has **Hindi and Indian English v
 
 ## Copy
 
-All UI text comes from `config/copy/<lang>.json`. Keys from CLAUDE.md Section 14.5 are used verbatim; every other key is listed in each file's `_review.keys` and needs native-speaker review before the demo.
+All UI text comes from `config/copy/<lang>.json`. Keys listed in each file's `_review.keys` need native-speaker review before the demo.

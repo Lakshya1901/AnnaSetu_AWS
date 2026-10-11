@@ -1,6 +1,6 @@
 # AnnaSetu: technical details
 
-The full reference behind the [README](README.md): data sources, every assumption with its status, the backtest, the model, the AWS architecture, how to run it and its limits. Decision numbers (D1-D39) point to the log in [CLAUDE.md](CLAUDE.md).
+The full reference behind the [README](README.md): data sources, every assumption with its status, the backtest, the model, the AWS architecture, how to run it and its limits. Decision numbers (D1-D39) refer to the team's internal decision log.
 
 Every day, a city's mandis turn good food into garbage. AnnaSetu stops the glut before the truck leaves, rescues what's left before it's dumped, and turns the rest into energy, not landfill.
 
@@ -61,7 +61,7 @@ Root causes software can address: blind dispatch (old local price, hearsay) and 
 
 ## 2. What it does
 
-Four parts around one decision: where should this load go? Rescue and Recover (CLAUDE.md Sections 5 and 9, D19) reuse the same engine with a different entry point: `POST /recommend` with `source: "mandi_unsold"` and the "I have unsold stock at the market" screen. The Impact Ledger headline is kg kept out of landfill = Prevented + Rescued + Recovered; redirected stays separate. Biogas energy shows "not yet estimated" until a yield is sourced (D21).
+Four parts around one decision: where should this load go? Rescue and Recover (D19) reuse the same engine with a different entry point: `POST /recommend` with `source: "mandi_unsold"` and the "I have unsold stock at the market" screen. The Impact Ledger headline is kg kept out of landfill = Prevented + Rescued + Recovered; redirected stays separate. Biogas energy shows "not yet estimated" until a yield is sourced (D21).
 
 1. **Glut Radar.** Daily glut risk per reporting market and crop: safe, watch or glut, always as colour + word + icon, with the arrival ratio and price. Tomato runs in `same_day` mode (Section 5), so the radar shows today's risk only and makes no "days early" claims.
 2. **Dispatch Advisor (the core).** For one load (crop, quantity, origin, harvest timing) it ranks every reachable outlet by net value per kg after freight, market fee, commission, handling and trip spoilage, with low/mid/high ranges. For a day's loads (`/plan`) it allocates largest first and adds each assignment to that market's expected extra arrivals, so AnnaSetu never pushes a market into glut itself. A market whose risk cannot be checked is listed but never chosen (D17). If harvesting does not pay, it advises harvesting only what has a buyer.
@@ -101,7 +101,7 @@ Reproduce: `python analysis/simulate_2026.py`, `python analysis/simulate_farm_20
 
 ## 5. Backtest: what the data showed
 
-Snapshot: tomato, 2022-01-01 to 2025-06-30, seven district aggregates (`ceda_tomato_2022-01-01_2025-06-30.csv`, sha256 `11890d38...f415`, rebuilt by `scripts/build_snapshot.py`; the committed snapshots are now the market-level India Data Portal files, `data/snapshot/idp_*`, D24). Results JSON (each file separates observed values from model output) is not kept in git: the latest runs (market-level run 937fb04f9baf, D13, and `second_replay.json`) are stored in the project's S3 data bucket under `backtest/` (CLAUDE.md Section 8.5), and the commands below regenerate them into `analysis/out/`. The figures in this section are from the earlier district-level run 78dc0a403b99, except where marked market-level.
+Snapshot: tomato, 2022-01-01 to 2025-06-30, seven district aggregates (`ceda_tomato_2022-01-01_2025-06-30.csv`, sha256 `11890d38...f415`, rebuilt by `scripts/build_snapshot.py`; the committed snapshots are now the market-level India Data Portal files, `data/snapshot/idp_*`, D24). Results JSON (each file separates observed values from model output) is not kept in git: the latest runs (market-level run 937fb04f9baf, D13, and `second_replay.json`) are stored in the project's S3 data bucket under `backtest/`, and the commands below regenerate them into `analysis/out/`. The figures in this section are from the earlier district-level run 78dc0a403b99, except where marked market-level.
 
 **Observed (prices, arrivals, gaps; no model involved)**
 
@@ -238,7 +238,7 @@ Everything runs in **ap-south-1** and is defined in `infra/template.yaml`, built
 | Layer | Technology | AWS used |
 | --- | --- | --- |
 | Mobile app | React Native 0.86 + Expo SDK 57, TypeScript, expo-router; Noto fonts for 21 languages; built with EAS | Talks only to API Gateway |
-| API | HTTP JSON (Section 13 of CLAUDE.md) | API Gateway HTTP API, Lambda authorizer, SSM Parameter Store (API key) |
+| API | HTTP JSON (types in `app/api/types.ts`) | API Gateway HTTP API, Lambda authorizer, SSM Parameter Store (API key) |
 | Decision engine | Python 3.13, pure functions in `backend/core/` (no ML, no AWS imports) | AWS Lambda (`advisor`) |
 | Data pipeline | India Data Portal AGMARKNET bulk files, split per crop | S3 (per-crop history), EventBridge Scheduler, SQS + dead-letter queue, Lambda (`ingest`), DynamoDB (MarketRisk) |
 | Storage | Outlets, plans, overrides, risk | DynamoDB (on-demand), S3 |
@@ -345,7 +345,6 @@ Deploy (full steps in [infra/README.md](infra/README.md)):
 ```
 README.md                  short visual pitch: problem, product, results, AWS, links
 TECHNICAL.md               this page
-CLAUDE.md                  full specification and decision log (D1-D39)
 PRODUCT.md                 users, tone and design principles for the app
 analysis/
   backtest.py              deterministic backtest CLI -> results JSON + charts
