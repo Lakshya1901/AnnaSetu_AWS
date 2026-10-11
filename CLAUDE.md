@@ -615,7 +615,9 @@ No AWS credentials in the app or the repo.
 ```
 annasetu/
 ├── CLAUDE.md
-├── README.md                 problem, demo video, APK link, architecture, AWS usage, limits
+├── README.md                 short visual pitch: problem, product, 2026 results, AWS, APK and video links
+├── TECHNICAL.md              full reference: sources, assumptions, backtest, model, architecture, run, limits
+├── release/annasetu.apk      Android APK
 ├── infra/template.yaml       SAM: Lambdas, API, tables, buckets, schedule, IAM
 ├── backend/
 │   ├── core/                 pure Python, no AWS imports
