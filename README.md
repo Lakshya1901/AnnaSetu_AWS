@@ -95,7 +95,21 @@ flowchart LR
   Ingest -.-> CW["CloudWatch alarms<br/>SNS email"]
 ```
 
-**AWS SAM CLI** (build, local run, deploy) · **CloudFormation** · **API Gateway** · **Lambda** (4 functions) · **DynamoDB** · **S3** · **EventBridge Scheduler** · **SQS** with dead-letter queue · **Transcribe** · **Polly** · **Location Service** · **Systems Manager Parameter Store** · **CloudWatch** · **SNS** · **IAM** (one least-privilege role per function) · **AWS Registry of Open Data** (NOAA GHCN-Daily) · **Bedrock** (wired through the Converse API to parse and explain; not enabled in our account, so templates run)
+| AWS service | What it does in AnnaSetu |
+| --- | --- |
+| **API Gateway** (HTTP API) + Lambda authorizer | The only entry point; checks the app's key, 10 rps throttle |
+| **Lambda** `advisor` | The decision engine: radar, recommendations, plans, impact |
+| **Lambda** `voice` | Audio upload, Transcribe job, spoken-load parse, Polly reply |
+| **Lambda** `ingest` + **EventBridge Scheduler** + **SQS** (with dead-letter queue) | Daily, one crop per message: reads mandi history from S3, recomputes market risk |
+| **DynamoDB** | Market risk, outlets, and every plan, explanation and override |
+| **S3** | Per-crop mandi history; audio clips deleted after 1 day |
+| **Amazon Location Service** | Any typed place in India; truck routes and drive times |
+| **AWS Registry of Open Data** | NOAA GHCN-Daily station temperature for the spoilage estimate |
+| **Transcribe** / **Polly** | Speech in 12 Indian languages / spoken replies in Hindi and Indian English |
+| **Systems Manager Parameter Store** | API keys as SecureString |
+| **CloudWatch** + **SNS** | Logs; alarms on ingest errors and the dead-letter queue, by email |
+| **AWS SAM CLI**, **CloudFormation**, **IAM** | Built, run locally and deployed with SAM; one least-privilege role per function |
+| **Bedrock** (Converse API) | Wired to parse speech and explain advice; not enabled in our account, so templates run |
 
 The app talks only to API Gateway and holds no AWS credentials. Details: [TECHNICAL.md, Architecture](TECHNICAL.md#8-architecture-and-aws-usage).
 
@@ -115,6 +129,24 @@ The app says it on screen: "Replaying \<date\> data", "Demo loads" and "All numb
 - **Android:** install [`release/annasetu.apk`](release/annasetu.apk). Settings has **Live** (today's mandi prices) and **Demo** (fills itself with a full day at Azadpur on the replayed glut day).
 - **Backend:** `python -m pytest backend/tests -q`, or run the advisor locally on the snapshot with `python -m backend.handlers.local_server --port 8787`.
 - **Deploy:** `cd infra && sam build && sam deploy --guided` ([infra/README.md](infra/README.md)).
+
+## Repository layout
+
+```
+backend/core/       decision engine: risk, pricing, spoilage, net value, allocation, impact (pure Python, no AWS)
+backend/adapters/   every external call: Agmarknet, weather, Amazon Location, Bedrock, Transcribe, Polly, DynamoDB
+backend/handlers/   thin Lambda handlers: advisor, voice, ingest, authorizer; local server
+backend/tests/      120 pytest tests, stubbed AWS clients
+app/                Expo app: screens, components, typed API client, 21 languages
+config/             model, assumptions (each with source and status), 50 crop profiles, markets, outlets, copy
+data/               snapshots (mandi data, weather), cached routes and places
+infra/              SAM template and deploy guide
+analysis/           backtest, 2026 replay and farm case study
+scripts/            data builders, geocoding, route caching, seeding
+release/            Android APK
+TECHNICAL.md        full reference: sources, assumptions, backtest, model, limits
+CLAUDE.md           specification and decision log (D1-D39)
+```
 
 ## Limits
 
