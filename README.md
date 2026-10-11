@@ -18,7 +18,6 @@ The core question it answers: **"Where should this load go today, and what will 
 - Android APK: [annasetu.apk](https://expo.dev/artifacts/eas/zimvjrUv9exYufPVm1UZrpx6QHH-wNO9-IqEBOfqDn8.apk) (EAS preview build, October 10; talks to the live API)
 - Stat report and case study: [2026 report](https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT): the deployed engine replayed on March-May 2026 mandi data (Kolar and Delhi): money saved Rs 2.20 crore (1.73-2.96, estimate), 169 t of 184 t unsold stock rescued, advice held out of sample on 1,248 of 1,279 diverted loads (Section 4)
 - Case study (same report): one simulated 8-acre vegetable farm near Narela, Delhi (tomato, bottle gourd, okra, cauliflower) on the same 2026 data: money saved Rs 5.2 lakh (3.7-7.7, estimate), 3,576 kg of 3,900 kg unsold stock rescued, advice held on 79 of 92 diverted loads (Section 4)
-- Built with [Claude Code](https://claude.com/claude-code) (Anthropic's AI coding tool), disclosed as the event rules require
 
 ## Brand
 
