@@ -6,7 +6,7 @@ Every day, a city's mandis turn good food into garbage. AnnaSetu stops the glut 
 
 One surplus router, three entry points, centred on the city mandi:
 
-- **Prevent (built):** tells farmer collectives (FPOs) where each load should go (sell fresh, process, donate, feed or compost) using public mandi data, and allocates loads across markets so they don't all crash the same one.
+- **Prevent (built):** tells farmer collectives (FPOs) where each load should go (sell fresh, hold, process, donate, feed, biogas or compost) using public mandi data, and allocates loads across markets so they don't all crash the same one.
 - **Rescue (built; outlets seeded where a real organisation was found, D31):** a trader at a city mandi logs unsold end-of-day stock; the router sends the edible part to food banks or processors before it is dumped.
 - **Recover (built; biogas and compost units in 7 states, D31):** what can't be eaten goes to animal feed, biogas or compost instead of landfill. Biogas energy is shown only as a labelled estimate.
 
@@ -16,8 +16,9 @@ The core question it answers: **"Where should this load go today, and what will 
 - Platform: Android/iOS app (Expo), serverless backend on AWS in ap-south-1, built and deployed with the AWS SAM CLI
 - Demo video: TBD
 - Android APK: [annasetu.apk](https://expo.dev/artifacts/eas/zimvjrUv9exYufPVm1UZrpx6QHH-wNO9-IqEBOfqDn8.apk) (EAS preview build, October 10; talks to the live API)
-- Stat report: [docs/stat-report-2026.html](docs/stat-report-2026.html): the deployed engine replayed on March-May 2026 mandi data (Kolar and Delhi): Rs 2.20 crore saved (estimate), 180 t kept out of landfill, advice held out of sample on 1,248 of 1,279 diverted loads (`analysis/simulate_2026.py`, `analysis/sim_summary.py`)
-- Case study: [docs/case-study-narela-2026.html](docs/case-study-narela-2026.html): one simulated 8-acre vegetable farm near Narela, Delhi (tomato, bottle gourd, okra, cauliflower) on the same 2026 data: Rs 5.2 lakh saved (estimate), 4,420 kg kept out of landfill, advice held on 79 of 92 diverted loads (`analysis/simulate_farm_2026.py`)
+- Stat report: [docs/stat-report-2026.html](docs/stat-report-2026.html): the deployed engine replayed on March-May 2026 mandi data (Kolar and Delhi): money saved Rs 2.20 crore (1.73-2.96, estimate), 169 t of 184 t unsold stock rescued, advice held out of sample on 1,248 of 1,279 diverted loads (Section 4)
+- Case study: [docs/case-study-narela-2026.html](docs/case-study-narela-2026.html): one simulated 8-acre vegetable farm near Narela, Delhi (tomato, bottle gourd, okra, cauliflower) on the same 2026 data: money saved Rs 5.2 lakh (3.7-7.7, estimate), 3,576 kg of 3,900 kg unsold stock rescued, advice held on 79 of 92 diverted loads (Section 4)
+- Built with [Claude Code](https://claude.com/claude-code) (Anthropic's AI coding tool), disclosed as the event rules require
 
 ## Brand
 
@@ -63,10 +64,12 @@ Four parts around one decision: where should this load go? Rescue and Recover (C
 
 1. **Glut Radar.** Daily glut risk per reporting market and crop: safe, watch or glut, always as colour + word + icon, with the arrival ratio and price. Tomato runs in `same_day` mode (Section 5), so the radar shows today's risk only and makes no "days early" claims.
 2. **Dispatch Advisor (the core).** For one load (crop, quantity, origin, harvest timing) it ranks every reachable outlet by net value per kg after freight, market fee, commission, handling and trip spoilage, with low/mid/high ranges. For a day's loads (`/plan`) it allocates largest first and adds each assignment to that market's expected extra arrivals, so AnnaSetu never pushes a market into glut itself. A market whose risk cannot be checked is listed but never chosen (D17). If harvesting does not pay, it advises harvesting only what has a buyer.
-3. **Second Life.** When no fresh market pays, it walks down the food waste hierarchy: processor, then food bank, then animal feed or compost. Never a dump. Hold is offered only for storable crops (tomato is not).
-4. **Impact Ledger.** For every decision: **waste avoided** (kg, low/mid/high, labelled "(estimate)") and **redirected** (kg) are shown as two separate numbers and never merged; plus extra km, diesel, CO2 and embedded water. A value that cannot be computed shows "not yet estimated", never zero.
+3. **Second Life.** When no fresh market pays, it walks down the food waste hierarchy: processor, then food bank, then (Recover) animal feed, biogas, compost. Never a dump. Hold is offered only for storable crops (tomato is not). Unsold stock first tries another mandi within 100 km that still pays (D36).
+4. **Impact Ledger.** For every decision: **waste avoided** (kg, low/mid/high) and **redirected** (kg) are shown as two separate numbers and never merged; plus extra km, diesel, CO2 and embedded water. A value that cannot be computed shows "not yet estimated", never zero. One line per screen says "All numbers are estimates" (D32). The Today's loads tab (D39) lists today's loads and previous loads by day, each with a sold tick; the Impact tab keeps lifetime totals on the phone (D30).
 
-Input is by voice (Hindi, Kannada, Indian English) or a typed form. Bedrock only parses the spoken load and writes a two-sentence explanation from computed facts; deterministic Python decides. AnnaSetu advises, people decide: every recommendation can be overridden and overrides are logged.
+Routing (Dispatch Advisor, Rescue, Recover) covers the 50 preloaded fruits and vegetables, each with a profile in `config/crops/` (D33); the Glut Radar covers every AGMARKNET commodity, about 400 (D24, D28). The app text is in English plus 20 Indian languages, all but English pending native review (D27).
+
+Input is by voice (12 languages Amazon Transcribe supports) or a typed form. Bedrock only parses the spoken load and writes a two-sentence explanation from computed facts; deterministic Python decides. Bedrock is wired but disabled in this account (D23), so the rule-based parser and per-language templates run today. AnnaSetu advises, people decide: every recommendation can be overridden and overrides are logged.
 
 ## 3. Demo replays (D18)
 
@@ -74,16 +77,30 @@ Input is by voice (Hindi, Kannada, Indian English) or a typed form. Bedrock only
 
 In Demo the app runs on historical data and says so on every data screen: **"Replaying \<date\> data"**. The loads are **simulated demo loads** (labelled "Demo loads"), and every "what would have happened at the nearest mandi" figure is **model output**, not an observation.
 
-| Replay | Why this day | Observed on that day (CEDA district data) | Documented by |
+| Replay | Why this day | On that day | Documented by |
 | --- | --- | --- | --- |
-| **2023-09-06** (headline, `config/model.json` `replay_date`) | An arrival-driven glut at Kolar | Kolar 7-day mean arrivals 2,860.3 t vs a baseline of 1,627 t (one prior year, 2022), so R = 1.76 (model level: glut); modal price Rs 6.64/kg, down 28.7% in 3 days from Rs 9.31/kg. Madanapalle, 61.3 km straight line, Rs 10.60/kg | [Deccan Herald, 2023-09-26](https://www.deccanherald.com/india/karnataka/rs-200-to-rs-10-tomato-farmers-hopes-crash-2700660): officials attribute the crash to "the arrival of a large quantity of tomatoes"; Kolar APMC received 4.21 lakh quintals that month vs 2.31 lakh quintals a year earlier. [FreshPlaza, source New Indian Express, 2023-09-04](https://www.freshplaza.com/asia/article/9556365/tomato-prices-down-at-kolar-market/): "the arrival of fresh produce caused a glut" |
+| **2023-09-29** (headline, `config/model.json` `replay_date`, re-chosen on market-level data, D18, D24) | Inside the documented September 2023 Kolar glut; the ten demo loads split clearly | Kolar R 1.59 (model level: watch); net Rs 4.8-6.4/kg at Kolar vs Binny Mill, Bengaluru Rs 7.5-11.5/kg (model) | Same September 2023 glut as the row below |
+| **2023-09-06** (earlier headline, CEDA district data) | An arrival-driven glut at Kolar | Kolar 7-day mean arrivals 2,860.3 t vs a baseline of 1,627 t (one prior year, 2022), so R = 1.76 (model level: glut); modal price Rs 6.64/kg, down 28.7% in 3 days from Rs 9.31/kg. Madanapalle, 61.3 km straight line, Rs 10.60/kg | [Deccan Herald, 2023-09-26](https://www.deccanherald.com/india/karnataka/rs-200-to-rs-10-tomato-farmers-hopes-crash-2700660): officials attribute the crash to "the arrival of a large quantity of tomatoes"; Kolar APMC received 4.21 lakh quintals that month vs 2.31 lakh quintals a year earlier. [FreshPlaza, source New Indian Express, 2023-09-04](https://www.freshplaza.com/asia/article/9556365/tomato-prices-down-at-kolar-market/): "the arrival of fresh produce caused a glut" |
 | **2025-03-19** (run with `REPLAY_DATE=2025-03-19`) | Kolar's 2025 low, below harvest cost | Kolar modal Rs 4.60/kg, the lowest of Jan-Apr 2025, below the Rs 4.7/kg harvest and transport cost | [Outlook Business](https://www.outlookbusiness.com/explainers/farmers-in-india-struggle-with-falling-tomato-prices-whats-behind-the-price-drop): about Rs 70 per 15 kg box to harvest and transport vs sale price as low as Rs 30; crops left unharvested |
 
-On 2023-09-06 the demo compares the nearest-mandi default with AnnaSetu's allocation of ten loads spread over several markets. **Waste-avoided figures are not stated here**: they need Amazon Location routes cached for the demo origins (D11), and they come from the app. On 2025-03-19 arrivals were normal, so waste avoided there is driven by the placeholder price-below-cost dump share (D12) and always carries "(estimate)". 2025-02-07 was dropped as a demo day because Kolar still paid above harvest cost, which made waste avoided negative.
+On 2023-09-29 the demo compares the nearest-mandi default with AnnaSetu's allocation of ten loads from Kolar: they split Binny Mill 11.2 t and Vayalapadu 4.8 t; waste avoided -216 to 3,269 kg (mid 732 kg, estimate), redirected 16,000 kg, extra 878 km (D18). On market-level data 2023-09-06 recommends Madanapalli but the ten loads do not split and waste avoided is about -8 kg, which is why the headline moved (D24). On 2025-03-19 arrivals were normal; the engine recommends Binny Mill, Bengaluru (net Rs 9.0-13.5/kg vs Kolar Rs 3.6-4.8, below harvest cost), with waste avoided 365-812 kg per 2 t load, driven by the placeholder price-below-cost dump share (D12), so it is an estimate. 2025-02-07 was dropped as a demo day because Kolar still paid above harvest cost, which made waste avoided negative.
 
-## 4. Backtest: what the data showed
+**Demo day at Azadpur (D37).** In Demo mode the app fills itself with a fixed day on the replay date (29 Sep 2023): six simulated farm loads from Azadpur (banana, papaya, guava, pumpkin, capsicum, cabbage, 5,000 kg each) and five simulated unsold lots at Azadpur (onion, tomato, cabbage, banana, cauliflower). Checked October 11 against the deployed API: kept out of landfill about 13,100 kg (11,100-18,000) of 41,500 kg, waste avoided mid 2,187 kg, rescued 10,908 kg, money saved about Rs 4.2 lakh (all estimates). Loads and lots are simulated ("Demo loads"); prices, routes and weather are real. Demo and Live keep separate lifetime totals on the phone.
 
-Snapshot: tomato, 2022-01-01 to 2025-06-30, seven district aggregates (`data/snapshot/ceda_tomato_2022-01-01_2025-06-30.csv`, sha256 `11890d38...f415`). Results JSON (each file separates observed values from model output) is not kept in git: the latest runs (market-level run 937fb04f9baf, D13, and `second_replay.json`) are stored in the project's S3 data bucket under `backtest/` (CLAUDE.md Section 8.5), and the commands below regenerate them into `analysis/out/`. The figures in this section are from the earlier district-level run 78dc0a403b99.
+## 4. Results: 2026 replay (D38)
+
+The deployed advisor's own `/plan` and `/recommend` code, run on every day of 1 March - 31 May 2026 (the last day in the India Data Portal files) on real prices, arrivals, NASA POWER temperature and cached Amazon Location routes. The loads are simulated; every money and waste figure is a model estimate.
+
+- **Kolar and Delhi ([stat report](docs/stat-report-2026.html)).** Each day: ten Kolar tomato loads, five 5 t loads from Azadpur (tomato, onion, banana, cabbage, cauliflower) and one 2 t unsold tomato lot at Azadpur. 1,380 loads, 0 errors, deterministic; 94.6% sent away from the nearest mandi; money saved Rs 2.20 crore (1.73-2.96, estimate); waste avoided net +11 t (range -65 to +238 t): Delhi +18 t, mostly banana on 39 Azadpur arrival-glut days, Kolar -6 t (longer trips with no glut this spring); 169 t of 184 t unsold stock rescued to mandis within 100 km.
+- **One farm near Narela, Delhi ([case study](docs/case-study-narela-2026.html)).** A simulated 8-acre farm (tomato 3 acres, bottle gourd 2, okra 2 from 15 April, cauliflower 1 in March; quantities from typical yields). Narela mandi does not report these crops, so the nearest reporting mandi is Azadpur. 112 loads (127 t), 0 errors, 85.7% sent elsewhere, money saved Rs 5.2 lakh (3.7-7.7, estimate), waste avoided +844 kg net, 3,576 kg of 3,900 kg unsold stock rescued.
+- **Out-of-sample check.** For every diverted load, the next real price at both the advised and the nearest market within 7 days, freight-adjusted: the advice held on 1,248 of 1,279 diverted loads (2026 replay) and 79 of 92 (Narela farm).
+- **Weak spots.** Cauliflower: Delhi cauliflower held on 14 of 35 loads, Narela cauliflower 4 of 10. Kolar's waste avoided is negative this spring: with no glut, a longer trip only adds spoilage. Kolar sent every load away because Bengaluru paid more after freight all spring; more trucks to one city would test the anti-herding cap, which Live mode cannot check without arrivals (D34).
+
+Reproduce: `python analysis/simulate_2026.py`, `python analysis/simulate_farm_2026.py`, then `python analysis/sim_summary.py` (add `--prefix farm_2026` for the farm; outputs in git-ignored `analysis/out/`, stored in S3 under `backtest/`).
+
+## 5. Backtest: what the data showed
+
+Snapshot: tomato, 2022-01-01 to 2025-06-30, seven district aggregates (`ceda_tomato_2022-01-01_2025-06-30.csv`, sha256 `11890d38...f415`, rebuilt by `scripts/build_snapshot.py`; the committed snapshots are now the market-level India Data Portal files, `data/snapshot/idp_*`, D24). Results JSON (each file separates observed values from model output) is not kept in git: the latest runs (market-level run 937fb04f9baf, D13, and `second_replay.json`) are stored in the project's S3 data bucket under `backtest/` (CLAUDE.md Section 8.5), and the commands below regenerate them into `analysis/out/`. The figures in this section are from the earlier district-level run 78dc0a403b99, except where marked market-level.
 
 **Observed (prices, arrivals, gaps; no model involved)**
 
@@ -94,7 +111,7 @@ Snapshot: tomato, 2022-01-01 to 2025-06-30, seven district aggregates (`data/sna
 **Model output (arrival ratio R and risk levels applied to observed data)**
 
 - Kolar's 2025 crash was **price-driven with normal arrivals**: median R 0.75, max 1.26 over Jan-Apr 2025 (below the 1.3 watch threshold). So the 2025 card cites the price drop and the net-value gap, never an arrival multiple.
-- **Mode: `same_day` (D13).** Of 214 crash episodes (price down more than 25% in 3 days), 123 were scorable. The full risk rule flagged at least 2 days ahead on 46.3% of them; the arrival ratio alone on 26.8%. Predictive mode needs more than 50%. Arrival ratio does not lead price: its strongest negative correlation with forward price change is +0.003 at a 1-day lag. Hence no "days early" claim anywhere in the app or video; the claim is "avoids sending into a glut today".
+- **Mode: `same_day` (D13).** Of 214 crash episodes (price down more than 25% in 3 days), 123 were scorable. The full risk rule flagged at least 2 days ahead on 46.3% of them; the arrival ratio alone on 26.8%. Predictive mode needs more than 50%. Arrival ratio does not lead price: its strongest negative correlation with forward price change is +0.003 at a 1-day lag. Market-level re-run 937fb04f9baf (D13, D24): 1,818 scorable crash episodes in 319 markets within 350 km of Kolar; flags at least 2 days ahead on 44.5% (full rule) and 22.6% (arrival ratio only); strongest negative lag 4 days, correlation -0.002. Still `same_day`. Hence no "days early" claim anywhere in the app or video; the claim is "avoids sending into a glut today".
 - False alarms are reported too: 64.2% of full-rule flag days (75% for arrival ratio only) had no crash in the same market within 7 days.
 
 Charts:
@@ -105,7 +122,7 @@ Charts:
 Reproduce (deterministic; run ids are content hashes):
 
 ```bash
-python scripts/build_snapshot.py tomato 2022-01-01 2025-06-30   # re-pull from CEDA (optional; snapshot is committed)
+python scripts/build_snapshot.py tomato 2022-01-01 2025-06-30   # re-pull the district snapshot from CEDA
 python analysis/backtest.py --crop tomato                         # writes analysis/out/results_<run_id>.json (git-ignored) and charts
 python analysis/second_replay.py                                  # writes analysis/out/second_replay.json (git-ignored)
 aws s3 cp s3://annasetu-data-<suffix>/backtest/ analysis/out/ --recursive   # or fetch the stored runs (team AWS account)
@@ -113,7 +130,7 @@ aws s3 cp s3://annasetu-data-<suffix>/backtest/ analysis/out/ --recursive   # or
 
 `analysis/backtest.ipynb` is a viewer for these outputs only.
 
-## 5. Model
+## 6. Model
 
 Pure Python in `backend/core/` (standard library only, no AWS imports, no deep learning). Every parameter lives in `config/`.
 
@@ -130,18 +147,22 @@ Decisions referenced: **D4** projected R in allocation; **D12** price-below-cost
 
 Resource accounting: extra km vs the default market, diesel = extra km x 0.14 L/km, CO2 = diesel x 2.68 kg/L, water = W x 184 L/kg.
 
-## 6. Data and assumptions
+## 7. Data and assumptions
 
 ### Sources
 
 | Source | Used for | Why / notes |
 | --- | --- | --- |
-| [CEDA Agri Market Data](https://agmarknet.ceda.ashoka.edu.in) (Ashoka University), a mirror of AGMARKNET | Daily min/max/modal price and arrivals, 2022-01-01 to 2025-06-30, per Census 2011 district | D1: agmarknet.gov.in (HTTP 403) and api.data.gov.in (TLS reset) refuse connections from cloud IPs. CEDA is a public JSON API with no key. It is **district level**: each "market" is one district aggregate named after its main tomato market town (Kolar district = Kolar, Chittoor = Madanapalle, Chikkaballapura = Chintamani). No data is invented; the manifest records hashes |
-| [NASA POWER](https://power.larc.nasa.gov/) hourly T2M/RH2M (MERRA-2) | Trip temperature for spoilage | D16: Open-Meteo returned HTTP 429 on the shared IP, so both replay windows use NASA POWER snapshots in `data/snapshot/weather_power_*.json` |
+| [India Data Portal AGMARKNET bulk files](https://ckandev.indiadataportal.com/dataset/agriculture-marketing) (Open Data Commons Attribution License) | Market-level daily arrivals and min/max/modal price, every commodity, 2021-01-01 to 2026-05-31, with market coordinates | D24: replaces the CEDA district snapshot. `scripts/build_idp.py` writes one file per commodity to S3; ingest computes MarketRisk from it |
+| [Agmarknet](https://agmarknet.gov.in) last-week prices per market | Live mode prices (no arrivals) | D34: the only public live endpoint; arrivals need a captcha. Cached per market per day |
+| [CEDA Agri Market Data](https://agmarknet.ceda.ashoka.edu.in) (Ashoka University), a mirror of AGMARKNET | Earlier snapshot: daily min/max/modal price and arrivals, 2022-01-01 to 2025-06-30, per Census 2011 district | D1: agmarknet.gov.in (HTTP 403) and api.data.gov.in (TLS reset) refuse connections from cloud IPs. CEDA is a public JSON API with no key. It is **district level**: each "market" is one district aggregate named after its main tomato market town (Kolar district = Kolar, Chittoor = Madanapalle, Chikkaballapura = Chintamani). No data is invented; the manifest records hashes |
+| [NASA POWER](https://power.larc.nasa.gov/) hourly T2M/RH2M (MERRA-2) | Trip temperature for spoilage | D16: Open-Meteo returned HTTP 429 on the shared IP, so the Kolar replay windows use NASA POWER snapshots in `data/snapshot/weather_power_*.json` |
+| NOAA GHCN-Daily on the AWS Registry of Open Data (`s3://noaa-ghcn-pds`) | Delhi replay temperature (Safdarjung, Palam) | D29: `data/snapshot/weather_ghcn_delhi_*.json`; deployed, a day no snapshot covers uses the Open-Meteo forecast, else the nearest GHCN station within 50 km |
+| OpenStreetMap (ODbL) | 14 extra Second Life outlets (compost, food banks, biogas) | D36: `scripts/build_osm_outlets.py`, each with its OSM URL, "Not yet partnered" |
 | OpenStreetMap Nominatim | Market town coordinates (`config/markets.json`, OSM ids recorded) | Replaced by Amazon Location via `scripts/geocode_markets.py` when run in the team's account |
 | Amazon Location Service | Route distance and drive time | D11: no default truck speed; drive time comes only from routes cached in `data/routes_cache.json` by `scripts/cache_routes.py`. A request without a cached or live route returns 422 `drive_time_unavailable` |
 
-Markets used: Kolar, Chintamani, Bengaluru, Doddaballapura, Mandya, Mysuru (Karnataka), Madanapalle (Andhra Pradesh). Excluded (`config/markets.json` `_excluded`):
+Markets in the earlier CEDA district snapshot: Kolar, Chintamani, Bengaluru, Doddaballapura, Mandya, Mysuru (Karnataka), Madanapalle (Andhra Pradesh). Excluded (`config/markets.json` `_excluded`):
 
 | District | Reason |
 | --- | --- |
@@ -184,7 +205,7 @@ Fractions are of the sale value. Anything not `sourced` is shown in the app as "
 | `tomato.unit_box_kg` | 15 | kg | sourced | Same Outlook Business article |
 | `tomato.water_l_per_kg` | 184 | L per kg | placeholder | 184 L/kg world average, tropical production 200-900 L/kg (Hoekstra, cited in [Nederhoff and Stanghellini 2010](https://edepot.wur.nl/156932)) |
 
-Onion, potato and banana profiles exist but have placeholder fields; a profile with a null required field is rejected ("This crop isn't set up yet"), never guessed.
+The other 49 routable crops (D33) have profiles built by one rule set from published sources (shelf life and respiration mostly USDA Agriculture Handbook 66, water footprint Mekonnen and Hoekstra 2010, loss by stage NABCONS 2022); derived values are `placeholder`, category medians `assumption`. Harvest cost is sourced for tomato, green peas and cauliflower only (onion and green chilli placeholder); crops without one get no delay-harvest advice and no below-cost dump rule. A profile with a null required field is rejected ("This crop isn't set up yet"), never guessed.
 
 ### Disclosure: what is real and what is simulated
 
@@ -192,18 +213,22 @@ Onion, potato and banana profiles exist but have placeholder fields; a profile w
 | --- | --- | --- |
 | Mandi prices and arrivals | Real: replayed (Demo) or today's Agmarknet prices without arrivals (Live, D34) | Demo: "Replaying \<date\> data" |
 | Glut events | Real, documented | Sources in Section 3 above |
-| Weather, routes | Real (NASA POWER; Amazon Location) | This README |
+| Weather, routes | Real (NASA POWER, NOAA GHCN-Daily, Open-Meteo forecast; Amazon Location) | This README |
 | Crop parameters | Published references; some placeholders | "Reference parameters"; placeholders marked |
-| Freight, fees, commission, handling, diesel | Desk-research values; placeholders until FPO interviews | "(estimate)" |
-| Dump share u(R) | Placeholder heuristic | "(estimate)" |
-| Processors and food banks | Real organisations, not contacted | "Not yet partnered" |
+| Freight, fees, commission, handling, diesel | Desk-research values; placeholders until FPO interviews | "All numbers are estimates" (D32) |
+| Dump share u(R) | Placeholder heuristic | "All numbers are estimates" (D32) |
+| Processors, food banks, biogas and compost units | Real organisations, not contacted | "Not yet partnered" |
+| Unsold stock at a city mandi | Simulated lot | "Demo stock" |
+| Biogas energy | Estimate from a sourced yield (D21); the yield is not sourced yet | "Not yet estimated" |
 | Loads and villages | Simulated loads, real villages | "Demo loads" |
+| Demo day at Azadpur (D37) | Six farm loads and five unsold lots, simulated; prices, routes and weather real | "Demo loads"; Demo and Live totals kept apart |
+| 2026 replay and Narela farm (D38) | Loads, unsold lots, the farm, its crops and picking quantities simulated (typical yields); 2026 prices, arrivals, weather and routes real | Labelled simulated in both reports |
 | Users | No usability test run yet; planned with volunteers before the demo video | Update this row once it happens |
 | Spoilage | Estimated, not measured | On the card and here |
 
-Seeded Second Life outlets (Kolar region, desk research, all "Not yet partnered"): [SNR Foods](https://snrfoods.in/about) (processor, Srinivaspura), [Feel Fresh Foods](https://www.feelfreshfoods.com/about-us.html) (processor, Chittoor belt), [Kolar Food Bank](https://kolarfoodbank.1ngo.in/), [Bangalore Food Bank](https://bangalorefoodbank.com/) fresh produce recovery. Delhi: India FoodBanking Network. Other states (D31): biogas units in Indore, Surat, Hyderabad, Ujjain, Chennai, Kochi and Gwalior; compost units in Agra; onion dehydration plants in Mahuva and tomato processors in Shimla and Krishnagiri. Sources in `config/outlets.json`. Rescue looks within 100 km of the trader (assumption).
+Seeded Second Life outlets (Kolar region, desk research, all "Not yet partnered"): [SNR Foods](https://snrfoods.in/about) (processor, Srinivaspura), [Feel Fresh Foods](https://www.feelfreshfoods.com/about-us.html) (processor, Chittoor belt), [Kolar Food Bank](https://kolarfoodbank.1ngo.in/), [Bangalore Food Bank](https://bangalorefoodbank.com/) fresh produce recovery. Delhi: India FoodBanking Network. Other states (D31): biogas units in Indore, Surat, Hyderabad, Ujjain, Chennai, Kochi and Gwalior; compost units in Agra; onion dehydration plants in Mahuva and tomato processors in Shimla and Krishnagiri; 14 more from OpenStreetMap (D36). Sources in `config/outlets.json`. No Delhi biogas, compost, feed or processor unit with a source was found, so Delhi Recover shows "No biogas or compost unit near you yet" (D26). Rescue looks within 100 km of the trader (assumption).
 
-## 7. Architecture and AWS usage
+## 8. Architecture and AWS usage
 
 Everything runs in **ap-south-1** and is defined in `infra/template.yaml`, built and deployed with the **AWS SAM CLI** (open source: `sam build`, `sam deploy`, `sam local start-api`). This meets the prize-eligibility rule both ways: deployed on AWS, and built with an AWS open-source tool.
 
@@ -232,37 +257,41 @@ flowchart LR
   APIGW --> Voice["Lambda voice<br/>/voice/upload /voice/parse /speak"]
   Advisor --> DDB[("DynamoDB<br/>MarketDay MarketRisk<br/>Outlets Plans")]
   Advisor --> Loc["Amazon Location<br/>routes"]
-  Advisor --> BR["Amazon Bedrock<br/>explain only"]
+  Advisor -.-> BR["Amazon Bedrock<br/>explain only (disabled, D23)"]
+  Advisor --> SQS["SQS fetch queue<br/>+ dead-letter queue"]
   Voice --> S3A[("S3 audio<br/>1-day lifecycle")]
-  Voice --> Tr["Amazon Transcribe<br/>hi-IN kn-IN en-IN"]
-  Voice --> BR2["Amazon Bedrock<br/>parse only"]
+  Voice --> Tr["Amazon Transcribe<br/>12 Indian languages"]
+  Voice -.-> BR2["Amazon Bedrock<br/>parse only (disabled, D23)"]
   Voice --> Polly["Amazon Polly<br/>Hindi, Indian English"]
   Sched["EventBridge Scheduler<br/>21:00 IST daily"] --> Ingest["Lambda ingest"]
-  Ingest -->|"CEDA AGMARKNET"| DDB
-  Ingest --> S3D[("S3 data<br/>raw + snapshot")]
+  Ingest -->|"fan-out, one crop per message"| SQS
+  SQS --> Ingest
+  S3D[("S3 data<br/>per-crop market history")] -->|"India Data Portal AGMARKNET"| Ingest
+  Ingest -->|"MarketRisk"| DDB
   Ingest -.-> SSM
-  Ingest -.->|"errors"| CW["CloudWatch logs + alarm"]
+  Ingest -.->|"errors"| CW["CloudWatch logs + alarms<br/>SNS email"]
 ```
 
 | Service | Role in the product |
 | --- | --- |
-| API Gateway (HTTP API) + Lambda authorizer | The only entry point; the app never calls AWS services directly and holds no AWS credentials |
+| API Gateway (HTTP API, throttled at 10 rps) + Lambda authorizer | The only entry point; the authorizer checks the app's API key (`x-api-key`) against SSM; the app never calls AWS services directly and holds no AWS credentials |
 | Lambda `advisor` | Runs the deterministic engine (`backend/core/`) for the radar, recommendations, plans and the impact ledger |
-| Lambda `voice` | Presigned audio upload, Transcribe job, Bedrock parse, Polly reply |
-| Lambda `ingest` + EventBridge Scheduler + SQS | Daily fan-out of the 50 preloaded crops over SQS (one invocation per crop, retries, dead-letter queue); each run reads the crop's market-level history from S3 and recomputes MarketRisk. Other crops load on request (POST /crops/fetch) |
+| Lambda `voice` | Presigned audio upload, Transcribe job, spoken-load parse (rule parser; Bedrock when enabled), Polly reply |
+| Lambda `ingest` + EventBridge Scheduler (21:00 IST) + SQS fetch queue and dead-letter queue | Daily fan-out of the 50 preloaded crops over SQS (one invocation per crop, retries, dead-letter queue); each run reads the crop's market-level history from S3 and recomputes MarketRisk. Other crops load on request (POST /crops/fetch) |
 | DynamoDB (on-demand) | MarketDay, MarketRisk, Outlets, Plans (every recommendation, explanation input/output and override) |
 | S3 | Private data bucket (raw pulls, snapshot) and audio bucket (deleted after 1 day) |
-| Amazon Location Service | Market geocoding (once), any typed city, town or village in India, and route distance and drive time (cached) |
-| Amazon Bedrock | One small model, temperature 0, 3 s timeout: parses a spoken load into fields, and explains a computed recommendation in two sentences. It never calculates or chooses an outlet; any number not in its input triggers a per-language template |
+| Amazon Location Service (place index, route calculator) | Market geocoding (once), any typed city, town or village in India, and route distance and drive time (cached) |
+| Amazon Bedrock (Converse API) | **Wired but disabled in this account (D23):** Anthropic model access was refused, and the deploy parameter `BedrockModelId` is empty, so the rule-based parser and per-language templates run; setting it (Amazon Nova Lite planned) enables Bedrock with no code change. Design: one small model, temperature 0, 3 s timeout: parses a spoken load into fields, and explains a computed recommendation in two sentences. It never calculates or chooses an outlet; any number not in its input triggers a per-language template |
 | Amazon Transcribe | Batch speech-to-text in 12 Indian languages (English, Hindi, Bengali, Gujarati, Kannada, Malayalam, Marathi, Odia, Punjabi, Tamil, Telugu, Nepali) |
 | Amazon Polly | Spoken replies in Hindi and Indian English (no Kannada voice exists) |
 | SSM Parameter Store | App API key and data.gov.in key (SecureString) |
 | NOAA GHCN-Daily (AWS Registry of Open Data) | Station temperatures for past days (spoilage estimate), read from the public S3 bucket |
-| CloudWatch | Logs; alarm on ingest failure |
+| CloudWatch + SNS | Logs; alarms on ingest errors and on the fetch dead-letter queue, emailed through an SNS topic when an alarm address is given |
+| AWS SAM CLI, CloudFormation, IAM | `infra/template.yaml` built, run locally (`sam local start-api`) and deployed with SAM; one least-privilege role per function |
 
 Each function has its own least-privilege IAM role. No credentials, account IDs or model IDs are committed.
 
-## 8. Run it
+## 9. Run it
 
 Backend (Python 3.13 on Lambda; `pip install -r backend/requirements.txt` for pytest and boto3; tests use stubbed AWS clients and no network):
 
@@ -296,42 +325,46 @@ Deploy (full steps in [infra/README.md](infra/README.md)):
 5. Cache routes with `scripts/cache_routes.py`.
 6. Set the API URL and key in the app's env and build the APK: `eas build -p android --profile preview`.
 
-## 9. Limitations
+## 10. Limitations
 
-- **District aggregates, not single mandis.** CEDA reports per Census district; "Kolar" is Kolar district. Market-level AGMARKNET data would replace it without engine changes.
-- **Placeholder costs and dump share drive the waste number.** Freight, commission, handling, diesel and the u(R) table are desk-research placeholders until FPO interviews. On price-crash days the below-cost dump share (D12) dominates waste avoided. Every such figure is a range labelled "(estimate)".
+- **Market-level history ends 31 May 2026.** The India Data Portal files (D24) are market level but end there; after that only Live prices from Agmarknet are available, without arrivals. The earlier backtest figures (Section 5) are from CEDA district aggregates.
+- **Placeholder costs and dump share drive the waste number.** Freight, commission, handling, diesel and the u(R) table are desk-research placeholders until FPO interviews. On price-crash days the below-cost dump share (D12) dominates waste avoided. Every such figure is a range, and each screen says "All numbers are estimates" (D32).
 - **Spoilage is estimated, not measured**, from outside temperature, travel time and reference post-harvest parameters.
-- **No Kannada Polly voice.** Spoken replies are Hindi or Indian English only; in Kannada the app shows text and says so.
-- **Strings pending native review.** Hindi and Kannada copy needs native-speaker review before use with farmers.
+- **Polly speaks Hindi and Indian English only.** There is no Kannada or other Indian-language Polly voice; in other languages the spoken reply is in English, and Settings says so.
+- **Strings pending native review.** All 20 Indian languages need native-speaker review before use with farmers; all but Hindi and Kannada are machine-drafted, and Kashmiri, Santali, Manipuri and Dogri are low confidence (D27).
+- **Bedrock is off in this account (D23).** Spoken loads are parsed by rules and explanations come from per-language templates until a model is enabled.
 - **Second Life outlets are not partnered.** They are real organisations found by desk research and have not been contacted.
 - **One prior year baseline for 2023.** The snapshot starts 2022-01-01, so the 2023-09-06 baseline uses 2022 only; 2022 itself has no baseline.
 - **Same-day only.** Arrivals did not lead price in the backtest, so there is no early warning.
 - **Live mode has prices, not arrivals (D34).** Agmarknet's public endpoint gives each market's last-week prices; arrivals need a captcha. Live risk comes from the price drop alone, and load splitting needs arrivals, so it runs in Demo only.
 - **No live third-party dependency in the demo.** The demo replays committed snapshots (prices, weather) and cached routes; Bedrock and Polly failures fall back to templates and text.
 
-## 10. Repository layout
+## 11. Repository layout
 
 ```
-CLAUDE.md                  full specification and decision log (D1-D18)
+CLAUDE.md                  full specification and decision log (D1-D39)
 README.md
 analysis/
   backtest.py              deterministic backtest CLI -> analysis/out/results_<run_id>.json + charts
   second_replay.py         arrival-driven glut search -> analysis/out/second_replay.json
+  simulate_2026.py         2026 replay (D38); simulate_farm_2026.py: Narela farm; sim_summary.py: report figures
   backtest.ipynb           viewer only
-  out/                     results JSON and PNG charts
+  out/                     results JSON and PNG charts (git-ignored)
 backend/
   core/                    decision engine: risk, pricing, spoilage, netvalue, allocate, impact, recommend (no AWS)
-  adapters/                all external calls: ceda, weather, location, bedrock, speech, store
+  adapters/                all external calls: agmarknet, ceda, weather, location, bedrock, speech, store
   handlers/                thin Lambda wrappers: advisor, voice, ingest, authorizer, local_server
   tests/                   pytest suite and API fixtures
 config/
   model.json assumptions.json markets.json outlets.json
-  crops/                   tomato (complete), onion, potato, banana (placeholders)
-  copy/                    en, hi, kn
+  crops/                   50 routable fruit and vegetable profiles (D33)
+  copy/                    English + 20 Indian languages (D27)
 data/
-  snapshot/                CEDA tomato snapshot + manifest, NASA POWER weather
+  snapshot/                India Data Portal tomato and onion files + manifest, NASA POWER and NOAA GHCN weather
   routes_cache.json        Amazon Location routes (filled by scripts/cache_routes.py)
+  places_cache.json        Amazon Location place lookups for offline runs (D31)
 infra/                     SAM template, Makefile, deploy guide
-scripts/                   build_snapshot.py geocode_markets.py cache_routes.py seed.py
+scripts/                   build_idp.py build_idp_config.py build_agmarknet_ids.py build_osm_outlets.py build_snapshot.py geocode_markets.py cache_routes.py seed.py
+docs/                      stat-report-2026.html, case-study-narela-2026.html, writeup.md, brand/
 app/                       Expo app: screens, components, typed API client, i18n
 ```
