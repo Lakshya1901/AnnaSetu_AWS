@@ -133,19 +133,34 @@ The app says it on screen: "Replaying \<date\> data", "Demo loads" and "All numb
 ## Repository layout
 
 ```
-backend/core/       decision engine: risk, pricing, spoilage, net value, allocation, impact (pure Python, no AWS)
-backend/adapters/   every external call: Agmarknet, weather, Amazon Location, Bedrock, Transcribe, Polly, DynamoDB
-backend/handlers/   thin Lambda handlers: advisor, voice, ingest, authorizer; local server
-backend/tests/      120 pytest tests, stubbed AWS clients
-app/                Expo app: screens, components, typed API client, 21 languages
-config/             model, assumptions (each with source and status), 50 crop profiles, markets, outlets, copy
-data/               snapshots (mandi data, weather), cached routes and places
-infra/              SAM template and deploy guide
-analysis/           backtest, 2026 replay and farm case study
-scripts/            data builders, geocoding, route caching, seeding
-release/            Android APK
-TECHNICAL.md        full reference: sources, assumptions, backtest, model, limits
-CLAUDE.md           specification and decision log (D1-D39)
+README.md                  this page
+TECHNICAL.md               full reference: sources, assumptions, backtest, model, architecture, limits
+CLAUDE.md                  full specification and decision log (D1-D39)
+PRODUCT.md                 users, tone and design principles for the app
+analysis/
+  backtest.py              deterministic backtest CLI -> results JSON + charts
+  second_replay.py         arrival-driven glut search (D14)
+  simulate_2026.py         2026 replay (D38); simulate_farm_2026.py: Narela farm; sim_summary.py: report figures
+  backtest.ipynb           viewer only
+  out/                     backtest charts (PNG); results JSON is git-ignored and kept in S3
+backend/
+  core/                    decision engine: risk, pricing, spoilage, netvalue, allocate, impact, recommend (no AWS)
+  adapters/                all external calls: agmarknet, ceda, weather, location, bedrock, speech, store
+  handlers/                thin Lambda wrappers: advisor, voice, ingest, authorizer, local_server
+  tests/                   120 pytest tests and API fixtures, stubbed AWS clients
+config/
+  model.json assumptions.json markets.json outlets.json commodities.json
+  crops/                   50 routable fruit and vegetable profiles (D33)
+  copy/                    English + 20 Indian languages (D27)
+data/
+  snapshot/                India Data Portal tomato and onion files + manifest, NASA POWER and NOAA GHCN weather
+  routes_cache.json        Amazon Location routes (filled by scripts/cache_routes.py)
+  places_cache.json        Amazon Location place lookups for offline runs (D31)
+infra/                     SAM template, Makefile, deploy guide
+scripts/                   build_idp.py build_idp_config.py build_agmarknet_ids.py build_osm_outlets.py build_snapshot.py geocode_markets.py cache_routes.py seed.py
+app/                       Expo app: screens, components, typed API client, i18n
+docs/                      2026 stat report and case study (PDF)
+release/                   Android APK
 ```
 
 ## Limits
