@@ -14,6 +14,7 @@ The core question it answers: **"Where should this load go today, and what will 
 
 - Track: Waste and Energy, WeMakeDevs x AWS Environmental Hacks: close the loop on what a city throws away (Rescue, Recover), make the city lighter (Prevent), power it cleaner (Recover: biogas)
 - Platform: Android/iOS app (Expo), serverless backend on AWS in ap-south-1, built and deployed with the AWS SAM CLI
+- AWS stack: AWS SAM CLI, AWS CloudFormation, Amazon API Gateway (HTTP API, Lambda authorizer), AWS Lambda (advisor, voice, ingest, authorizer), Amazon DynamoDB, Amazon S3, Amazon EventBridge Scheduler, Amazon SQS (with dead-letter queue), Amazon Transcribe, Amazon Polly, Amazon Location Service, Amazon Bedrock (Converse API; wired, not enabled in our account, D23), AWS Systems Manager Parameter Store, Amazon CloudWatch, Amazon SNS (alarm email, when an address is set at deploy), AWS IAM, AWS Registry of Open Data (NOAA GHCN-Daily). Details in Section 8
 - Demo video: TBD
 - Android APK: [annasetu.apk](https://expo.dev/artifacts/eas/zimvjrUv9exYufPVm1UZrpx6QHH-wNO9-IqEBOfqDn8.apk) (EAS preview build, October 10; talks to the live API)
 - Stat report and case study: [2026 report](https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT): the deployed engine replayed on March-May 2026 mandi data (Kolar and Delhi): money saved Rs 2.20 crore (1.73-2.96, estimate), 169 t of 184 t unsold stock rescued, advice held out of sample on 1,248 of 1,279 diverted loads (Section 4)
