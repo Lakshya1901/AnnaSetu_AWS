@@ -7,6 +7,14 @@
 <b><a href="TECHNICAL.md">Technical details</a></b>
 </p>
 
+<p align="center"><b>An algorithmic perishable food dispatch and market coordination system that anticipates local gluts and intelligently allocates produce across markets and second-life outlets to prevent edible food from becoming waste.</b></p>
+
+<p align="center">
+<b>Prevent:</b> ranks every reachable market by what the farmer actually keeps after freight, fees and spoilage, and spreads the day's loads so no market is pushed into a glut.<br>
+<b>Rescue:</b> sends a city trader's unsold stock to another mandi that still pays, a processor or a food bank before it is dumped.<br>
+<b>Recover:</b> routes what can't be eaten to animal feed, biogas or compost, never to landfill.
+</p>
+
 <p align="center">WeMakeDevs x AWS Environmental Hacks · Track: Waste and Energy · Serverless on AWS (ap-south-1), built and deployed with the AWS SAM CLI</p>
 
 ---
