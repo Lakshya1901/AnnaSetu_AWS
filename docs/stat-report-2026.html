@@ -198,7 +198,7 @@ const kept = A.waste_avoided_kg.mid + R.rescued_kg + R.recovered_kg;
 const pct = (a, b) => Math.round(a / b * 1000) / 10;
 document.getElementById("kpis").innerHTML = [
   ["lead", "Money saved", "Rs " + crore(A.money_saved_rs.mid) + " cr", "likely Rs " + crore(A.money_saved_rs.low) + "-" + crore(A.money_saved_rs.high) + " crore, about Rs " + (A.money_saved_rs.mid / A.kg).toFixed(1) + "/kg"],
-  ["", "Kept out of landfill", fmt(kept / 1000) + " t", fmt(R.rescued_kg / 1000) + " t rescued + " + fmt(A.waste_avoided_kg.mid / 1000) + " t net waste avoided"],
+  ["", "Kept out of landfill", fmt(kept / 1000) + " t", "likely " + fmt(Math.max(0, kept - A.waste_avoided_kg.mid + A.waste_avoided_kg.low) / 1000) + "-" + fmt((kept - A.waste_avoided_kg.mid + A.waste_avoided_kg.high) / 1000) + " t; " + fmt(R.rescued_kg / 1000) + " t rescued + " + fmt(A.waste_avoided_kg.mid / 1000) + " t net waste avoided"],
   ["", "Advice held out of sample", pct(A.verified_hit, A.verified) + "%", A.verified_hit.toLocaleString("en-IN") + " of " + A.verified.toLocaleString("en-IN") + " diverted loads"],
   ["", "Sent away from the nearest mandi", pct(A.diverted, A.loads) + "%", fmt(A.diverted) + " of " + fmt(A.loads) + " loads; +" + fmt(A.extra_km) + " km in all"],
 ].map(([c, k, v, s]) => `<div class="kpi ${c}"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join("");

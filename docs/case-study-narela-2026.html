@@ -76,7 +76,7 @@ footer { font-size: 12.5px; color: var(--muted); display: grid; gap: 6px; }
   <header>
     <div class="eyebrow">AnnaSetu · case study · one Delhi farm</div>
     <h1>Three months of 2026 on an 8-acre farm near Narela</h1>
-    <p class="lede">An 8-acre vegetable farm near Narela, north-west Delhi: tomato on 3 acres, bottle gourd on 2, okra on 2 from mid-April and cauliflower on 1 in March. Every picking went through AnnaSetu on that day's real mandi data. The nearest mandi reporting these crops is Azadpur, 17 km away.</p>
+    <p class="lede">A simulated 8-acre vegetable farm near Narela, north-west Delhi: tomato on 3 acres, bottle gourd on 2, okra on 2 from mid-April and cauliflower on 1 in March. Every picking went through AnnaSetu on that day's real mandi data. The nearest mandi reporting these crops is Azadpur, 17 km away.</p>
     <div class="meta" id="chips"></div>
   </header>
 
@@ -189,7 +189,7 @@ document.getElementById("chips").innerHTML = [`92 days`, `${fmt(A.loads)} loads 
 const kept = A.waste_avoided_kg.mid + R.rescued_kg + R.recovered_kg;
 document.getElementById("kpis").innerHTML = [
   ["lead", "Money saved", "Rs " + lakh(A.money_saved_rs.mid) + " lakh", "likely Rs " + lakh(A.money_saved_rs.low) + "-" + lakh(A.money_saved_rs.high) + " lakh, about Rs " + (A.money_saved_rs.mid / A.kg).toFixed(1) + "/kg"],
-  ["", "Kept out of landfill", fmt(kept) + " kg", fmt(R.rescued_kg) + " kg rescued + " + fmt(A.waste_avoided_kg.mid) + " kg net waste avoided"],
+  ["", "Kept out of landfill", fmt(kept) + " kg", "likely " + fmt(Math.max(0, kept - A.waste_avoided_kg.mid + A.waste_avoided_kg.low)) + "-" + fmt(kept - A.waste_avoided_kg.mid + A.waste_avoided_kg.high) + " kg; " + fmt(R.rescued_kg) + " kg rescued + " + fmt(A.waste_avoided_kg.mid) + " kg net waste avoided"],
   ["", "Advice held out of sample", pct(A.verified_hit, A.verified) + "%", A.verified_hit + " of " + A.verified + " diverted loads"],
   ["", "Sent away from Azadpur", pct(A.diverted, A.loads) + "%", fmt(A.diverted) + " of " + fmt(A.loads) + " loads; +" + fmt(A.extra_km) + " km in all"],
 ].map(([c, k, v, s]) => `<div class="kpi ${c}"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join("");

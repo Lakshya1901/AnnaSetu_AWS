@@ -11,7 +11,7 @@ import { useSession } from '../lib/session';
 import { C } from '../lib/theme';
 
 export default function ImpactScreen() {
-  const { t, planId, demoBusy } = useSession();
+  const { t, planId, demoBusy, dataMode } = useSession();
   const errorText = useErrorText();
   const [data, setData] = useState<ImpactResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,6 +46,7 @@ export default function ImpactScreen() {
 
   return (
     <Screen nav>
+      <DataBanners demoLoads={dataMode === 'demo'} />
       <SectionTitle>{t('since_start')}</SectionTitle>
       {demoBusy ? <Loading /> : life && <Lifetime totals={life} />}
 

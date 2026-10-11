@@ -174,7 +174,7 @@ Markets in the earlier CEDA district snapshot: Kolar, Chintamani, Bengaluru, Dod
 
 ### Assumptions (from `config/assumptions.json` and `config/crops/tomato.json`)
 
-Fractions are of the sale value. Anything not `sourced` is shown in the app as "(estimate)".
+Fractions are of the sale value. Every screen with figures built on these carries one "All numbers are estimates" line (D32).
 
 | Input | Value | Unit | Status | Source |
 | --- | --- | --- | --- | --- |

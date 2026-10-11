@@ -118,7 +118,7 @@ in TODO.md as they are done and commit TODO.md with the work.
 ### 5. Verification
 - [x] 5.1 Full checks (Oct 11: 120 passed, tsc clean. Oct 10: 105 passed, tsc clean, template valid): `python -m pytest backend/tests -q`, `cd app && npx tsc --noEmit`, `cd infra && sam validate --lint`. Oct 9: 85 passed, tsc clean, template valid. Re-run after any later change.
 - [x] 5.2 Reproducibility (Oct 10: backtest 937fb04f9baf JSON and both PNGs byte-identical on re-run): re-run `python analysis/backtest.py --crop tomato` and `python analysis/second_replay.py`; outputs must be byte-identical to the committed files. Oct 9: JSON and both PNGs byte-identical (charts need matplotlib).
-- [ ] 5.3 Every number on screen traces to `config/` or computed data with its status (CLAUDE.md Section 20). No Section 3.3 claims anywhere. No "days early" wording (mode is `same_day`).
+- [x] 5.3 (Oct 11: audit, 4 of 6 checks passed first time; fixed: Impact shows the Demo loads tag in demo mode, estimates line under previous loads, README D32 wording, kept-out-of-landfill ranges and the case study's simulated label) Every number on screen traces to `config/` or computed data with its status (CLAUDE.md Section 20). No Section 3.3 claims anywhere. No "days early" wording (mode is `same_day`).
   - Oct 9: no Section 3.3 claims in app, config, backend or README; `glut_in_days` renders only in `predictive` mode. Number tracing waits on 2.2 figures and phone screens.
 
 ### 6. Stat report generation
@@ -135,7 +135,7 @@ in TODO.md as they are done and commit TODO.md with the work.
 - [ ] 8.2 Rename the GitHub repo (e.g. `annasetu`) in GitHub settings; then `git remote set-url origin https://github.com/Lakshya1901/<new-name>` and update any URLs in README.md.
 
 ### 9. README, final push, public repo
-- [ ] 9.1 (Oct 11: APK link done; stat figures, screenshots and video link still open) Update README.md with the stat report figures, screenshots in `docs/`, and the APK link (replace "TBD").
+- [ ] 9.1 (Oct 11: results, AWS usage and disclosure done by the README pass; screenshots and video link still open) Update README.md with the stat report figures, screenshots in `docs/`, and the APK link (replace "TBD").
 - [ ] 9.2 Merge the working branch into `main` (via a PR; confirm first). `edit/festive-darwin-bd1y1i` already merged on October 9.
 - [ ] 9.3 Make the repo public. Check nothing secret is committed (no keys, `samconfig.toml`, `.env`).
 
@@ -143,10 +143,10 @@ in TODO.md as they are done and commit TODO.md with the work.
 
 - [x] 10. Commit history check: clear messages, no secrets, no model identifiers, no `node_modules` or build output. Oct 9: no keys, `.env`, `samconfig.toml`, `node_modules`, build output or model IDs in any commit. Early messages (`v1`, `merge (#1)`) are terse; left as is (rewriting `main` is not worth it). Re-check before 9.3.
 - [ ] 11. Demo video, 3 minutes or less: the live app on a phone, the 2025 Kolar price crash (2025-03-19), and the second case study (2023-09-29, documented Sept 2023 arrival glut, ten loads split; D18). Show "Replaying <date> data", label counterfactuals as modelled, waste avoided separate from redirected. Then fill the video link in README.md (replace "TBD").
-- [ ] 12. Short writeup (submission form): problem, build, AWS usage (name the SAM CLI and every AWS service; CLAUDE.md Section 22.1).
+- [ ] 12. (Oct 11: draft in docs/writeup.md; paste into the form) Short writeup (submission form): problem, build, AWS usage (name the SAM CLI and every AWS service; CLAUDE.md Section 22.1).
   List the AI coding tools used (Claude Code), as the rules require: "You can use AI coding tools. List the ones you used in your writeup." (https://www.wemakedevs.org/aws/env/rules). Add the same line to README.md.
 
-- [ ] 12b. Blog post (public, e.g. AWS Builder Center or Hashnode): the Kolar and city-mandi story, Prevent / Rescue / Recover, architecture diagram, how SAM CLI and each AWS service are used, what is real vs simulated (CLAUDE.md Section 18), limits, and "Built with Claude Code". Link it from README.md and the submission.
+- [ ] 12b. (Oct 11: draft in docs/blog.md; publish and link) Blog post (public, e.g. AWS Builder Center or Hashnode): the Kolar and city-mandi story, Prevent / Rescue / Recover, architecture diagram, how SAM CLI and each AWS service are used, what is real vs simulated (CLAUDE.md Section 18), limits, and "Built with Claude Code". Link it from README.md and the submission.
 
 ## Sunday (October 11)
 

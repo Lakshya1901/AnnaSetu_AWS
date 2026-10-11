@@ -8,7 +8,7 @@ import { api } from '../api/client';
 import type { PlanResponse } from '../api/types';
 import { Icon } from '../components/Icon';
 import { useOutletLabels } from '../components/RecommendationCard';
-import { Banner, Btn, Chip, DataBanners, ListRow, Loading, Screen, SectionTitle, Surface, T, Tag, fmtDate, s, useErrorText } from '../components/ui';
+import { Banner, Btn, Chip, DataBanners, EstNote, ListRow, Loading, Screen, SectionTitle, Surface, T, Tag, fmtDate, s, useErrorText } from '../components/ui';
 import { fmtNum } from '../i18n';
 import { readLedger, setSold, type LedgerEntry } from '../lib/ledger';
 import { useSession } from '../lib/session';
@@ -235,6 +235,7 @@ export default function PlanScreen() {
               <Surface>{shown.filter((e) => e.at.slice(0, 10) === d).map(row)}</Surface>
             </View>
           ))}
+          <EstNote />
         </>
       )}
     </Screen>
