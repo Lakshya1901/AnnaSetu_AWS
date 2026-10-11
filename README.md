@@ -3,7 +3,7 @@
 <p align="center">
 <b><a href="https://github.com/Lakshya1901/AnnaSetu_AWS/raw/main/release/annasetu.apk">Download the Android APK</a></b> ·
 <b>Demo video: TBD</b> ·
-<b><a href="https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT">2026 stat report and case study</a></b> ·
+<b><a href="docs/AnnaSetu_2026_Replay.pdf">2026 stat report and case study</a></b> ·
 <b><a href="TECHNICAL.md">Technical details</a></b>
 </p>
 
@@ -60,7 +60,7 @@ We ran the advisor's own `/plan` and `/recommend` code on **every day from 1 Mar
 - **Weak spot: cauliflower.** The advice held on 14 of 35 Delhi loads and 4 of 10 farm loads.
 - **1,562 requests across both runs, 0 errors, deterministic**, and 120 backend tests pass.
 
-All loads and the farm are simulated; prices, arrivals, weather and routes are real; money and waste are model estimates. Full charts in the [2026 report](https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT).
+All loads and the farm are simulated; prices, arrivals, weather and routes are real; money and waste are model estimates. Full charts in the [2026 report](docs/AnnaSetu_2026_Replay.pdf).
 
 ## How it decides
 
