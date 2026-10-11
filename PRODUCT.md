@@ -39,7 +39,7 @@ Real replayed AGMARKNET prices and arrivals (demo days 2023-09-29 and 2025-03-19
 
 ## Brand
 
-Anna (food) + Setu (bridge): an arch bridge with a sprout growing from its deck. Deep green `#215C3B`, light beige `#FAF6EE`, light green `#CFE3D4`, the same tokens as `app/lib/theme.ts`. Icon files in `docs/brand/` and `app/assets/`.
+Anna (food) + Setu (bridge): an arch bridge with a sprout growing from its deck. Deep green `#215C3B`, light beige `#FAF6EE`, light green `#CFE3D4`, the same tokens as `app/lib/theme.ts`. Icon files in `app/assets/brand/` and `app/assets/`.
 
 ## Product Principles
 

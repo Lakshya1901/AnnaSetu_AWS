@@ -122,10 +122,10 @@ in TODO.md as they are done and commit TODO.md with the work.
   - Oct 9: no Section 3.3 claims in app, config, backend or README; `glut_in_days` renders only in `predictive` mode. Number tracing waits on 2.2 figures and phone screens.
 
 ### 6. Stat report generation
-- [x] 6.1 (Oct 11: replaced by a 92-day replay of March-May 2026, Kolar and Delhi, docs/stat-report-2026.html; replay-day figures stay in CLAUDE.md D18 and D37) One report of the final numbers for both replay days from the live or local API: per load and 10-load plan, waste avoided (range), redirected, extra km, diesel, CO2, net value default vs advised. Save as `analysis/out/demo_report.json` (+ a readable `.md`).
+- [x] 6.1 (Oct 11: replaced by a 92-day replay of March-May 2026, Kolar and Delhi, the stat report artifact; replay-day figures stay in CLAUDE.md D18 and D37) One report of the final numbers for both replay days from the live or local API: per load and 10-load plan, waste avoided (range), redirected, extra km, diesel, CO2, net value default vs advised. Save as `analysis/out/demo_report.json` (+ a readable `.md`).
 
 ### 7. Result verification and classification
-- [x] 7.1 (Oct 11: classification table in docs/stat-report-2026.html) Label every figure in the report as observed (CEDA prices and arrivals, NASA POWER weather, Amazon Location routes), model output (R, net value, spoilage, waste avoided) or assumption (Section 10 placeholders).
+- [x] 7.1 (Oct 11: classification table in the stat report) Label every figure in the report as observed (CEDA prices and arrivals, NASA POWER weather, Amazon Location routes), model output (R, net value, spoilage, waste avoided) or assumption (Section 10 placeholders).
 - [ ] 7.2 Two numbers judges may question; keep them labelled:
   - Waste avoided on 2025-03-19 is driven mostly by the placeholder 40% dump share (D12). Always "(estimate)".
   - Price sensitivity: every market uses the spec's fallback b = -0.5 because price barely tracks arrivals in this data (D15). Stated in the README.
@@ -143,10 +143,10 @@ in TODO.md as they are done and commit TODO.md with the work.
 
 - [x] 10. Commit history check: clear messages, no secrets, no model identifiers, no `node_modules` or build output. Oct 9: no keys, `.env`, `samconfig.toml`, `node_modules`, build output or model IDs in any commit. Early messages (`v1`, `merge (#1)`) are terse; left as is (rewriting `main` is not worth it). Re-check before 9.3.
 - [ ] 11. Demo video, 3 minutes or less: the live app on a phone, the 2025 Kolar price crash (2025-03-19), and the second case study (2023-09-29, documented Sept 2023 arrival glut, ten loads split; D18). Show "Replaying <date> data", label counterfactuals as modelled, waste avoided separate from redirected. Then fill the video link in README.md (replace "TBD").
-- [ ] 12. (Oct 11: draft in docs/writeup.md; paste into the form) Short writeup (submission form): problem, build, AWS usage (name the SAM CLI and every AWS service; CLAUDE.md Section 22.1).
+- [ ] 12. (Oct 11: draft in the submission pack artifact; paste into the form) Short writeup (submission form): problem, build, AWS usage (name the SAM CLI and every AWS service; CLAUDE.md Section 22.1).
   List the AI coding tools used (Claude Code), as the rules require: "You can use AI coding tools. List the ones you used in your writeup." (https://www.wemakedevs.org/aws/env/rules). Add the same line to README.md.
 
-- [ ] 12b. (Oct 11: draft in docs/blog.md; publish and link) Blog post (public, e.g. AWS Builder Center or Hashnode): the Kolar and city-mandi story, Prevent / Rescue / Recover, architecture diagram, how SAM CLI and each AWS service are used, what is real vs simulated (CLAUDE.md Section 18), limits, and "Built with Claude Code". Link it from README.md and the submission.
+- [ ] 12b. (Oct 11: two drafts in the submission pack artifact; publish one and link) Blog post (public, e.g. AWS Builder Center or Hashnode): the Kolar and city-mandi story, Prevent / Rescue / Recover, architecture diagram, how SAM CLI and each AWS service are used, what is real vs simulated (CLAUDE.md Section 18), limits, and "Built with Claude Code". Link it from README.md and the submission.
 
 ## Sunday (October 11)
 
