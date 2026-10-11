@@ -1,7 +1,7 @@
 <p align="center"><img src=".github/readme/hero.png" alt="AnnaSetu: stops the glut before the truck leaves, rescues what's left before it's dumped, and turns the rest into energy, not landfill"></p>
 
 <p align="center">
-<b><a href="release/annasetu.apk">Download the Android APK</a></b> ·
+<b><a href="https://github.com/Lakshya1901/AnnaSetu_AWS/raw/main/release/annasetu.apk">Download the Android APK</a></b> ·
 <b>Demo video: TBD</b> ·
 <b><a href="https://claude.ai/artifact/Hb92HjfM7VAog9SeVGunzT">2026 stat report and case study</a></b> ·
 <b><a href="TECHNICAL.md">Technical details</a></b>
@@ -126,7 +126,7 @@ The app says it on screen: "Replaying \<date\> data", "Demo loads" and "All numb
 
 ## Try it
 
-- **Android:** install [`release/annasetu.apk`](release/annasetu.apk). Settings has **Live** (today's mandi prices) and **Demo** (fills itself with a full day at Azadpur on the replayed glut day).
+- **Android:** install [`release/annasetu.apk`](https://github.com/Lakshya1901/AnnaSetu_AWS/raw/main/release/annasetu.apk) (direct download). Settings has **Live** (today's mandi prices) and **Demo** (fills itself with a full day at Azadpur on the replayed glut day).
 - **Backend:** `python -m pytest backend/tests -q`, or run the advisor locally on the snapshot with `python -m backend.handlers.local_server --port 8787`.
 - **Deploy:** `cd infra && sam build && sam deploy --guided` ([infra/README.md](infra/README.md)).
 
