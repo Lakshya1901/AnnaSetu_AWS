@@ -161,7 +161,6 @@ infra/                     SAM template, Makefile, deploy guide
 scripts/                   build_idp.py build_idp_config.py build_agmarknet_ids.py build_osm_outlets.py build_snapshot.py geocode_markets.py cache_routes.py seed.py
 app/                       Expo app: screens, components, typed API client, i18n
 docs/                      2026 stat report and case study (PDF)
-release/                   Android APK
 ```
 
 ## Limits
