@@ -127,6 +127,7 @@ The app says it on screen: "Replaying \<date\> data", "Demo loads" and "All numb
 ## Try it
 
 - **Android:** install [`release/annasetu.apk`](release/annasetu.apk). Settings has **Live** (today's mandi prices) and **Demo** (fills itself with a full day at Azadpur on the replayed glut day).
+- **iOS:** [Simulator build](https://expo.dev/artifacts/eas/Vrf0-hg34bHFwBandvrPawatXrdaUJ66nmaiSEnvH_M.tar.gz) for a Mac with Xcode (unzip, drag `AnnaSetu.app` onto a running Simulator), or open the project in Expo Go on an iPhone. Real-device builds need a paid Apple Developer account.
 - **Backend:** `python -m pytest backend/tests -q`, or run the advisor locally on the snapshot with `python -m backend.handlers.local_server --port 8787`.
 - **Deploy:** `cd infra && sam build && sam deploy --guided` ([infra/README.md](infra/README.md)).
 
