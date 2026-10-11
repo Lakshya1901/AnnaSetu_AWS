@@ -343,21 +343,23 @@ Deploy (full steps in [infra/README.md](infra/README.md)):
 ## 11. Repository layout
 
 ```
+README.md                  short visual pitch: problem, product, results, AWS, links
+TECHNICAL.md               this page
 CLAUDE.md                  full specification and decision log (D1-D39)
-README.md
+PRODUCT.md                 users, tone and design principles for the app
 analysis/
-  backtest.py              deterministic backtest CLI -> analysis/out/results_<run_id>.json + charts
-  second_replay.py         arrival-driven glut search -> analysis/out/second_replay.json
+  backtest.py              deterministic backtest CLI -> results JSON + charts
+  second_replay.py         arrival-driven glut search (D14)
   simulate_2026.py         2026 replay (D38); simulate_farm_2026.py: Narela farm; sim_summary.py: report figures
   backtest.ipynb           viewer only
-  out/                     results JSON and PNG charts (git-ignored)
+  out/                     backtest charts (PNG); results JSON is git-ignored and kept in S3
 backend/
   core/                    decision engine: risk, pricing, spoilage, netvalue, allocate, impact, recommend (no AWS)
   adapters/                all external calls: agmarknet, ceda, weather, location, bedrock, speech, store
   handlers/                thin Lambda wrappers: advisor, voice, ingest, authorizer, local_server
-  tests/                   pytest suite and API fixtures
+  tests/                   120 pytest tests and API fixtures, stubbed AWS clients
 config/
-  model.json assumptions.json markets.json outlets.json
+  model.json assumptions.json markets.json outlets.json commodities.json
   crops/                   50 routable fruit and vegetable profiles (D33)
   copy/                    English + 20 Indian languages (D27)
 data/
@@ -367,4 +369,6 @@ data/
 infra/                     SAM template, Makefile, deploy guide
 scripts/                   build_idp.py build_idp_config.py build_agmarknet_ids.py build_osm_outlets.py build_snapshot.py geocode_markets.py cache_routes.py seed.py
 app/                       Expo app: screens, components, typed API client, i18n
+docs/                      2026 stat report and case study (PDF)
+release/                   Android APK
 ```
